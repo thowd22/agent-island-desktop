@@ -25,14 +25,18 @@ import qs.modules.ii.verticalBar
 import qs.modules.ii.wallpaperSelector
 
 Scope {
-    // OpenAgentIsland: full-width Bar disabled in favor of three floating islands.
+    // OpenAgentIsland: full-width Bar disabled in favour of the island.
     // PanelLoader { extraCondition: !Config.options.bar.vertical; component: Bar {} }
-    PanelLoader { component: IslandLeft {} }
+    //
+    // Single-island layout: IslandLeft and IslandRight are gone — everything they
+    // carried (search, workspaces, weather, network, resources, tray, power
+    // profile, settings, capture, clock, power) now lives in the notch's status
+    // row, revealed on hover. See IslandStatusRow.qml.
     PanelLoader { component: IslandNotch {} }
-    PanelLoader { component: IslandRight {} }
     PanelLoader { component: Background {} }
     PanelLoader { component: Cheatsheet {} }
-    PanelLoader { extraCondition: Config.options.dock.enable; component: Dock {} }
+    // Dock removed: the notch's launcher surface covers app launching.
+    // PanelLoader { extraCondition: Config.options.dock.enable; component: Dock {} }
     PanelLoader { component: Lock {} }
     PanelLoader { component: MediaControls {} }
     PanelLoader { component: NotificationPopup {} }

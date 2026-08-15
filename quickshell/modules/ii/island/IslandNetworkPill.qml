@@ -10,15 +10,20 @@ import Quickshell.Io
 // Reads totals from /proc/net/dev (excluding lo) once per second and diffs.
 Rectangle {
     id: root
+
+    /// Drawn inside the island's status row, where the notch already provides the
+    /// pill: drop our own background, border and padding.
+    property bool bare: false
+
     radius: IslandStyle.radius
-    color: IslandStyle.pillColor
-    border.width: IslandStyle.borderWidth
+    color: root.bare ? "transparent" : IslandStyle.pillColor
+    border.width: root.bare ? 0 : IslandStyle.borderWidth
     border.color: IslandStyle.pillBorder
     // Compact (icon only) → expands inline to show rates on hover. The left-island
     // window is fixed-width + masked, so this grows into reserved space (no window
     // resize → no jitter). clip hides the rates until the pill has grown to fit.
-    implicitWidth: content.implicitWidth + IslandStyle.hPadding * 2
-    implicitHeight: IslandStyle.pillHeight
+    implicitWidth: content.implicitWidth + (root.bare ? 0 : IslandStyle.hPadding * 2)
+    implicitHeight: root.bare ? content.implicitHeight : IslandStyle.pillHeight
     clip: true
     Behavior on implicitWidth { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 

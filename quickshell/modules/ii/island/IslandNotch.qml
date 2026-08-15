@@ -164,9 +164,17 @@ Scope {
             property string displaySource: expandedSource !== "" ? expandedSource
                 : (AgentService.active ? "agent"
                 : (root.mediaActive ? "media" : ""))
-            // open (a named surface is up ON THIS MONITOR) outranks transient OSDs,
-            // which outrank idle.
+            // Pointer is over the notch → reveal the full status row.
+            property bool hovered: false
+
+            // open (a named surface is up ON THIS MONITOR) outranks hover, which
+            // outranks transient OSDs, which outrank idle.
+            //
+            // Hover deliberately beats the OSD/agent/media display: mousing onto the
+            // island is an explicit "show me the controls". The one exception is a
+            // pending permission — that must never be hidden by a stray mouse-over.
             property string islandState: notchWindow.ownsOpen ? "open"
+                : (notchWindow.hovered && AgentService.pendingPermissions.length === 0) ? "hover"
                 : (displaySource !== "" ? "expanded" : "idle")
 
             Timer {
@@ -264,9 +272,11 @@ Scope {
                 }
             }
             property real targetWidth: islandState === "open" ? (root.surfaceSizes[Island.openSurface]?.w ?? root.maxWidth)
+                : islandState === "hover" ? statusRow.implicitWidth
                 : islandState === "expanded" ? (displaySource === "agent" ? (root.mediaActive ? 264 : 224) : Math.min(root.expandedMaxWidth, contentWidth + 36))
-                : 180
+                : idleRow.implicitWidth + 30
             property real targetHeight: islandState === "open" ? (root.surfaceSizes[Island.openSurface]?.h ?? root.maxHeight)
+                : islandState === "hover" ? 44
                 : islandState === "expanded" ? (displaySource === "media" || displaySource === "agent" ? 40 : 54)
                 : 36
 
@@ -327,11 +337,53 @@ Scope {
                     // Click the notch body from idle/OSD → open the dashboard. When a
                     // surface is open, surfaceHost's absorber catches clicks (no
                     // accidental close); close via Esc or re-clicking the trigger pill.
+                    // Declared before the content below, so the row's own handlers sit
+                    // on top and win; this only catches clicks on empty space.
                     onClicked: {
                         // open on THIS monitor (moves the surface here if another had it)
                         Island.open(notchWindow.displaySource === "agent" ? "agent" : "dashboard",
                                     notchWindow.screen.name);
                     }
+                }
+
+                // Hover anywhere on the notch reveals the status row.
+                HoverHandler {
+                    id: notchHover
+                    onHoveredChanged: notchWindow.hovered = hovered
+                }
+
+                // ---- idle: workspaces + clock ----
+                RowLayout {
+                    id: idleRow
+                    anchors.centerIn: parent
+                    spacing: 12
+                    opacity: notchWindow.islandState === "idle" ? 1 : 0
+                    visible: opacity > 0
+                    Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+
+                    IslandWorkspaces {
+                        Layout.alignment: Qt.AlignVCenter
+                        usedColor: IslandStyle.textColor
+                        activeColor: IslandStyle.accent
+                        emptyOpacity: IslandStyle.inactiveOpacity
+                        capsuleWidth: 26
+                    }
+                    StyledText {
+                        Layout.alignment: Qt.AlignVCenter
+                        text: Qt.locale().toString(DateTime.clock.date, "h:mm AP")
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        color: IslandStyle.textColor
+                    }
+                }
+
+                // ---- hover: the full status row (absorbs the old side islands) ----
+                IslandStatusRow {
+                    id: statusRow
+                    anchors.centerIn: parent
+                    screenName: notchWindow.screen.name ?? ""
+                    opacity: notchWindow.islandState === "hover" ? 1 : 0
+                    visible: opacity > 0
+                    Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
                 }
 
                 // ---- volume ----
