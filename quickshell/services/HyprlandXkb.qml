@@ -93,7 +93,7 @@ Singleton {
 
     // Update the layout name when it changes
     Connections {
-        target: Hyprland
+        target: Compositor
         function onRawEvent(event) {
             if (event.name === "activelayout") {
                 if (root.needsLayoutRefresh) {

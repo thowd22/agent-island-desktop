@@ -225,7 +225,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "barToggle"
         description: "Toggles bar on press"
 
@@ -234,7 +234,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "barOpen"
         description: "Opens bar on press"
 
@@ -243,7 +243,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "barClose"
         description: "Closes bar on press"
 

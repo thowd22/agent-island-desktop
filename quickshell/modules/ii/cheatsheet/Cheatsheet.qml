@@ -194,7 +194,7 @@ Scope { // Scope
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "cheatsheetToggle"
         description: "Toggles cheatsheet on press"
 
@@ -203,7 +203,7 @@ Scope { // Scope
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "cheatsheetOpen"
         description: "Opens cheatsheet on press"
 
@@ -212,7 +212,7 @@ Scope { // Scope
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "cheatsheetClose"
         description: "Closes cheatsheet on press"
 

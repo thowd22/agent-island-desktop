@@ -10,6 +10,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import QtQuick
+import qs.services
 
 /**
  * For managing brightness of monitors. Supports both brightnessctl and ddcutil.
@@ -34,14 +35,14 @@ Singleton {
             return;
         }
 
-        const focusedName = Hyprland.focusedMonitor.name;
+        const focusedName = Compositor.focusedMonitor.name;
         const monitor = monitors.find(m => focusedName === m.screen.name);
         if (monitor)
             monitor.setBrightness(monitor.brightness + 0.05);
     }
 
     function decreaseBrightness(): void {
-        const focusedName = Hyprland.focusedMonitor.name;
+        const focusedName = Compositor.focusedMonitor.name;
         const monitor = monitors.find(m => focusedName === m.screen.name);
         if (monitor && monitor.brightness > 0) 
             monitor.setBrightness(monitor.brightness - 0.05);
@@ -202,7 +203,7 @@ Singleton {
             property string screenshotPath: `${root.screenshotDir}/screenshot-${screenName}.png`
             Connections {
                 enabled: Config.options.light.antiFlashbang.enable && Appearance.m3colors.darkmode
-                target: Hyprland
+                target: Compositor
                 function onRawEvent(event) {
                     if (["activewindowv2", "windowtitlev2"].includes(event.name)) {
                         screenshotTimer.interval = root.contentSwitchDelay;
@@ -257,13 +258,13 @@ Singleton {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "brightnessIncrease"
         description: "Increase brightness"
         onPressed: root.increaseBrightness()
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "brightnessDecrease"
         description: "Decrease brightness"
         onPressed: root.decreaseBrightness()

@@ -83,7 +83,7 @@ FocusScope {
             AgentService._toast("Terminal not found");
             return;
         }
-        Hyprland.dispatch(`hl.dsp.focus({window = "address:${w.address}"})`);
+        Compositor.dispatch(`hl.dsp.focus({window = "address:${w.address}"})`);
         Island.close();
     }
 

@@ -78,7 +78,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarLeftToggle"
         description: "Toggles left sidebar on press"
 
@@ -93,7 +93,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "mediaControlsToggle"
         description: "Toggles media controls on press"
 

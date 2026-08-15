@@ -15,6 +15,7 @@ import QtQuick.Window
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import qs.services
 
 ShellRoot {
     id: root
@@ -68,7 +69,32 @@ ShellRoot {
         }
     }
 
-    GlobalShortcut {
+    /**
+     * Entry point for niri keybinds.
+     *
+     * niri has no hyprland_global_shortcuts_v1, so instead of the compositor
+     * pushing shortcuts to us, niri binds call back in:
+     *   qs -c openagentisland ipc call shortcuts trigger <name>
+     * which fans out to every NiriShortcut with a matching `name`.
+     */
+    IpcHandler {
+        target: "shortcuts"
+
+        function trigger(name: string): void {
+            Compositor.globalShortcut(name);
+        }
+
+        function release(name: string): void {
+            Compositor.globalShortcutReleased(name);
+        }
+
+        /// List the shortcut names the shell responds to (for wiring up binds).
+        function list(): string {
+            return Compositor.knownShortcuts.join("\n");
+        }
+    }
+
+    NiriShortcut {
         name: "panelFamilyCycle"
         description: "Cycles panel family"
 

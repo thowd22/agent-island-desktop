@@ -18,8 +18,8 @@ Scope {
     PanelWindow {
         id: panelWindow
         property string searchingText: ""
-        readonly property HyprlandMonitor monitor: Hyprland.monitorFor(panelWindow.screen)
-        property bool monitorIsFocused: (Hyprland.focusedMonitor?.id == monitor?.id)
+        readonly property var monitor: Compositor.monitorFor(panelWindow.screen)
+        property bool monitorIsFocused: (Compositor.focusedMonitor?.id == monitor?.id)
         visible: GlobalStates.overviewOpen
 
         WlrLayershell.namespace: "quickshell:overview"
@@ -146,7 +146,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "searchToggle"
         description: "Toggles search on press"
 
@@ -154,7 +154,7 @@ Scope {
             GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "overviewWorkspacesClose"
         description: "Closes overview on press"
 
@@ -162,7 +162,7 @@ Scope {
             GlobalStates.overviewOpen = false;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "overviewWorkspacesToggle"
         description: "Toggles overview on press"
 
@@ -170,7 +170,7 @@ Scope {
             GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "searchToggleRelease"
         description: "Toggles search on release"
 
@@ -186,7 +186,7 @@ Scope {
             GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "searchToggleReleaseInterrupt"
         description: "Interrupts possibility of search being toggled on release. " + "This is necessary because GlobalShortcut.onReleased in quickshell triggers whether or not you press something else while holding the key. " + "To make sure this works consistently, use binditn = MODKEYS, catchall in an automatically triggered submap that includes everything."
 
@@ -194,7 +194,7 @@ Scope {
             GlobalStates.superReleaseMightTrigger = false;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "overviewClipboardToggle"
         description: "Toggle clipboard query on overview widget"
 
@@ -203,7 +203,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "overviewEmojiToggle"
         description: "Toggle emoji query on overview widget"
 

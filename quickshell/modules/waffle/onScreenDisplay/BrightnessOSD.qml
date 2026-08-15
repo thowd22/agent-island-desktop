@@ -6,7 +6,7 @@ import qs.modules.waffle.looks
 
 OSDValue {
     id: root
-    property var focusedScreen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name)
+    property var focusedScreen: Quickshell.screens.find(s => s.name === Compositor.focusedMonitor?.name)
     property var brightnessMonitor: Brightness.getMonitorForScreen(focusedScreen)
     iconName: "weather-sunny"
     value: brightnessMonitor?.brightness ?? 0

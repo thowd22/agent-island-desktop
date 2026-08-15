@@ -4,6 +4,7 @@ import qs.modules.common
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import qs.services
 
 // Custom workspace indicator for the floating island.
 // Reference-style: uniform-spaced dots (used = solid, unused = faint), and the
@@ -20,7 +21,7 @@ Item {
     property color usedColor: Appearance.colors.colOnLayer0
     property color activeColor: Appearance.colors.colPrimary
 
-    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(root.QsWindow.window?.screen)
+    readonly property var monitor: Compositor.monitorFor(root.QsWindow.window?.screen)
     readonly property int activeWs: monitor?.activeWorkspace?.id ?? 1
     readonly property int group: Math.floor((activeWs - 1) / workspacesShown)
 
@@ -28,16 +29,16 @@ Item {
     property var occupied: []
     function updateOccupied() {
         root.occupied = Array.from({ length: root.workspacesShown }, (_, i) =>
-            Hyprland.workspaces.values.some(w => w.id === root.group * root.workspacesShown + i + 1));
+            Compositor.workspaces.values.some(w => w.id === root.group * root.workspacesShown + i + 1));
     }
     Component.onCompleted: updateOccupied()
     onGroupChanged: updateOccupied()
     Connections {
-        target: Hyprland.workspaces
+        target: Compositor.workspaces
         function onValuesChanged() { root.updateOccupied(); }
     }
     Connections {
-        target: Hyprland
+        target: Compositor
         function onFocusedWorkspaceChanged() { root.updateOccupied(); }
     }
 
@@ -51,9 +52,9 @@ Item {
             // Lua-Hyprland dispatch (hl.dsp.*); compute the absolute target since the
             // standard relative "workspace e±1" form no-ops here.
             if (event.angleDelta.y < 0)
-                Hyprland.dispatch(`hl.dsp.focus({workspace = ${root.activeWs + 1}})`);
+                Compositor.dispatch(`hl.dsp.focus({workspace = ${root.activeWs + 1}})`);
             else if (event.angleDelta.y > 0)
-                Hyprland.dispatch(`hl.dsp.focus({workspace = ${Math.max(1, root.activeWs - 1)}})`);
+                Compositor.dispatch(`hl.dsp.focus({workspace = ${Math.max(1, root.activeWs - 1)}})`);
         }
     }
 
@@ -110,7 +111,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.LeftButton
-                    onPressed: Hyprland.dispatch(`hl.dsp.focus({workspace = ${del.wsId}})`)
+                    onPressed: Compositor.dispatch(`hl.dsp.focus({workspace = ${del.wsId}})`)
                 }
             }
         }

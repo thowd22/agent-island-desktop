@@ -98,7 +98,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarRightToggle"
         description: "Toggles right sidebar on press"
 
@@ -106,7 +106,7 @@ Scope {
             GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarRightOpen"
         description: "Opens right sidebar on press"
 
@@ -114,7 +114,7 @@ Scope {
             GlobalStates.sidebarRightOpen = true;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarRightClose"
         description: "Closes right sidebar on press"
 

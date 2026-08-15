@@ -76,7 +76,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarRightToggle"
         description: "Toggles notification center on press"
 

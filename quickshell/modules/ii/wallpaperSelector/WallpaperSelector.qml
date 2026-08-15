@@ -19,8 +19,8 @@ Scope {
 
         sourceComponent: PanelWindow {
             id: panelWindow
-            readonly property HyprlandMonitor monitor: Hyprland.monitorFor(panelWindow.screen)
-            property bool monitorIsFocused: (Hyprland.focusedMonitor?.id == monitor?.id)
+            readonly property var monitor: Compositor.monitorFor(panelWindow.screen)
+            property bool monitorIsFocused: (Compositor.focusedMonitor?.id == monitor?.id)
 
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "quickshell:wallpaperSelector"
@@ -82,7 +82,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "wallpaperSelectorToggle"
         description: "Toggle wallpaper selector"
         onPressed: {
@@ -90,7 +90,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "wallpaperSelectorRandom"
         description: "Select random wallpaper in current folder"
         onPressed: {

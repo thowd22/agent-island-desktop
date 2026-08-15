@@ -11,7 +11,7 @@ Item {
     id: root
     // Compact: single line (title only), short "Desktop" idle label. For the island pill.
     property bool compact: false
-    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(root.QsWindow.window?.screen)
+    readonly property var monitor: Compositor.monitorFor(root.QsWindow.window?.screen)
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
 
     property string activeWindowAddress: `0x${activeWindow?.HyprlandToplevel?.address}`

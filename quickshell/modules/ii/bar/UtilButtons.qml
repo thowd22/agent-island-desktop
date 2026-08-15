@@ -57,7 +57,7 @@ Item {
             visible: Config.options.bar.utilButtons.showColorPicker
             sourceComponent: CircleUtilButton {
                 Layout.alignment: Qt.AlignVCenter
-                onClicked: Quickshell.execDetached(["hyprpicker", "-a"])
+                onClicked: Quickshell.execDetached(["bash", "-c", 'niri msg -j pick-color | python3 -c \'import json,sys;c=json.load(sys.stdin);v=c.get("rgb") or c.get("color") or [0,0,0];print("#%02x%02x%02x" % tuple(int(round(x*255)) if isinstance(x,float) and x<=1 else int(x) for x in v[:3]))\' | tr -d "[:space:]" | wl-copy'])
                 MaterialSymbol {
                     horizontalAlignment: Qt.AlignHCenter
                     fill: 1

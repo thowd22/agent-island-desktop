@@ -52,7 +52,7 @@ Singleton {
     }
 
     Connections {
-        target: Hyprland
+        target: Compositor
 
         function onRawEvent(event) {
             if (event.name == "configreloaded") {

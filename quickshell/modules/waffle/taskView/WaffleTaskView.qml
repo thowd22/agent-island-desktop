@@ -34,8 +34,8 @@ Scope {
             sourceComponent: PanelWindow {
                 id: root
                 property string searchingText: ""
-                readonly property HyprlandMonitor monitor: Hyprland.monitorFor(root.screen)
-                property bool monitorIsFocused: (Hyprland.focusedMonitor?.id == monitor?.id)
+                readonly property var monitor: Compositor.monitorFor(root.screen)
+                property bool monitorIsFocused: (Compositor.focusedMonitor?.id == monitor?.id)
                 screen: panelLoader.modelData
 
                 WlrLayershell.namespace: "quickshell:wTaskView"
@@ -99,7 +99,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "overviewWorkspacesToggle"
         description: "Toggles overview on press"
 

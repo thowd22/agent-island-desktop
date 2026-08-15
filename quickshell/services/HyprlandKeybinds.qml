@@ -18,7 +18,7 @@ Singleton {
     property var keybindCategories: []
 
     Connections {
-        target: Hyprland
+        target: Compositor
 
         function onRawEvent(event) {
             if (event.name == "configreloaded") {

@@ -96,7 +96,7 @@ Scope {
     // The monitor that currently has keyboard focus — where auto-opened surfaces
     // (e.g. an incoming permission) should appear. Falls back to the first screen.
     function focusedScreenName() {
-        const n = Hyprland.focusedMonitor?.name ?? "";
+        const n = Compositor.focusedMonitor?.name ?? "";
         if (n.length > 0)
             return n;
         return Quickshell.screens.length > 0 ? (Quickshell.screens[0].name ?? "") : "";

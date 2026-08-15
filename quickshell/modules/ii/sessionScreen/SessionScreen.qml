@@ -13,7 +13,7 @@ import Quickshell.Hyprland
 
 Scope {
     id: root
-    property var focusedScreen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name)
+    property var focusedScreen: Quickshell.screens.find(s => s.name === Compositor.focusedMonitor?.name)
 
     Loader {
         id: sessionLoader
@@ -309,7 +309,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sessionToggle"
         description: "Toggles session screen on press"
 
@@ -318,7 +318,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sessionOpen"
         description: "Opens session screen on press"
 
@@ -327,7 +327,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sessionClose"
         description: "Closes session screen on press"
 

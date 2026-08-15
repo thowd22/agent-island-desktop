@@ -4,6 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import qs.services
+import qs.modules.common
 
 Scope {
     id: root
@@ -12,7 +14,7 @@ Scope {
         GlobalStates.screenTranslatorOpen = false
     }
 
-    readonly property var currentScreen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? null
+    readonly property var currentScreen: Quickshell.screens.find(s => s.name === Compositor.focusedMonitor?.name) ?? null
     
     Loader {
         id: translatorLoader
@@ -48,7 +50,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "screenTranslate"
         description: "Translates screen content"
         onPressed: root.translate()

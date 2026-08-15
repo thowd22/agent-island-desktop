@@ -58,7 +58,7 @@ PanelWindow {
     }
 
     // Hyprland stuff
-    readonly property HyprlandMonitor hyprlandMonitor: Hyprland.monitorFor(screen)
+    readonly property var hyprlandMonitor: Compositor.monitorFor(screen)
     readonly property real monitorScale: hyprlandMonitor.scale
     readonly property var windows: [...HyprlandData.windowList].sort((a, b) => {
         // Sort floating=true windows before others
@@ -338,7 +338,7 @@ PanelWindow {
         WToolbarIconButton {
             icon.name: "eyedropper"
             onClicked: {
-                Quickshell.execDetached(["bash", "-c", "sleep 0.2; hyprpicker -a"]);
+                Quickshell.execDetached(["bash", "-c", "sleep 0.2; " + 'niri msg -j pick-color | python3 -c \'import json,sys;c=json.load(sys.stdin);v=c.get("rgb") or c.get("color") or [0,0,0];print("#%02x%02x%02x" % tuple(int(round(x*255)) if isinstance(x,float) and x<=1 else int(x) for x in v[:3]))\' | tr -d "[:space:]" | wl-copy']);
                 root.closed();
             }
             WToolTip {

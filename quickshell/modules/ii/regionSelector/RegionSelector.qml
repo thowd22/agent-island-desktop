@@ -90,27 +90,27 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "regionScreenshot"
         description: "Takes a screenshot of the selected region"
         onPressed: root.screenshot()
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "regionSearch"
         description: "Searches the selected region"
         onPressed: root.search()
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "regionOcr"
         description: "Recognizes text in the selected region"
         onPressed: root.ocr()
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "regionRecord"
         description: "Records the selected region"
         onPressed: root.record()
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "regionRecordWithSound"
         description: "Records the selected region with sound"
         onPressed: root.recordWithSound()

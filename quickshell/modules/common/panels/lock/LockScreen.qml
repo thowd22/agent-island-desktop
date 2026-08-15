@@ -94,7 +94,7 @@ Scope {
 
     function lock() {
         if (Config.options.lock.useHyprlock) {
-            Quickshell.execDetached(["bash", "-c", "pidof hyprlock || hyprlock"]);
+            Quickshell.execDetached(["bash", "-c", "pidof swaylock || swaylock"]);
             return;
         }
         GlobalStates.screenLocked = true;
@@ -111,7 +111,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "lock"
         description: "Locks the screen"
 
@@ -120,7 +120,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "lockFocus"
         description: "Re-focuses the lock screen. This is because Hyprland after waking up for whatever reason"
             + "decides to keyboard-unfocus the lock screen"

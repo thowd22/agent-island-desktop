@@ -207,7 +207,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "mediaControlsToggle"
         description: "Toggles media controls on press"
 
@@ -215,7 +215,7 @@ Scope {
             GlobalStates.mediaControlsOpen = !GlobalStates.mediaControlsOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "mediaControlsOpen"
         description: "Opens media controls on press"
 
@@ -223,7 +223,7 @@ Scope {
             GlobalStates.mediaControlsOpen = true;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "mediaControlsClose"
         description: "Closes media controls on press"
 

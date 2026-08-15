@@ -216,7 +216,7 @@ Scope { // Scope
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarLeftToggle"
         description: "Toggles left sidebar on press"
 
@@ -225,7 +225,7 @@ Scope { // Scope
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarLeftOpen"
         description: "Opens left sidebar on press"
 
@@ -234,7 +234,7 @@ Scope { // Scope
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarLeftClose"
         description: "Closes left sidebar on press"
 
@@ -243,7 +243,7 @@ Scope { // Scope
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "sidebarLeftToggleDetach"
         description: "Detach left sidebar into a window/Attach it back"
 

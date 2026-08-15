@@ -17,7 +17,7 @@ FocusScope {
     focus: true
     Keys.onEscapePressed: Island.close()
 
-    readonly property int activeWs: Hyprland.focusedWorkspace?.id ?? 1
+    readonly property int activeWs: Compositor.focusedWorkspace?.id ?? 1
     readonly property var windows: HyprlandData.windowList
     function winsIn(ws) {
         return surf.windows.filter(w => w.workspace.id === ws);
@@ -60,7 +60,7 @@ FocusScope {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            Hyprland.dispatch(`hl.dsp.focus({workspace = ${cell.wsId}})`);
+                            Compositor.dispatch(`hl.dsp.focus({workspace = ${cell.wsId}})`);
                             Island.close();
                         }
                     }
@@ -138,7 +138,7 @@ FocusScope {
                                             const row = Math.max(0, Math.min(1, Math.floor(p.y / grid.cellH)));
                                             const target = row * 5 + col + 1;
                                             if (target !== chip.modelData.workspace.id)
-                                                Hyprland.dispatch(`hl.dsp.window.move({workspace = ${target}, follow = false, window = "address:${chip.modelData.address}"})`);
+                                                Compositor.dispatch(`hl.dsp.window.move({workspace = ${target}, follow = false, window = "address:${chip.modelData.address}"})`);
                                         }
                                         suppressClick = wasDragging;
                                         surf.dragging = false;
@@ -151,10 +151,10 @@ FocusScope {
                                             return;
                                         }
                                         if (m.button === Qt.LeftButton) {
-                                            Hyprland.dispatch(`hl.dsp.focus({window = "address:${chip.modelData.address}"})`);
+                                            Compositor.dispatch(`hl.dsp.focus({window = "address:${chip.modelData.address}"})`);
                                             Island.close();
                                         } else if (m.button === Qt.RightButton) {
-                                            Hyprland.dispatch(`hl.dsp.window.close({window = "address:${chip.modelData.address}"})`);
+                                            Compositor.dispatch(`hl.dsp.window.close({window = "address:${chip.modelData.address}"})`);
                                         }
                                     }
                                 }

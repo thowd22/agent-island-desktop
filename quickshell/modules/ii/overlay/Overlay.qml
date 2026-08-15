@@ -83,7 +83,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "overlayToggle"
         description: "Toggles overlay on press"
 

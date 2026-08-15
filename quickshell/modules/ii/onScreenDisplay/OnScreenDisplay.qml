@@ -13,7 +13,7 @@ import Quickshell.Hyprland
 Scope {
     id: root
     property string protectionMessage: ""
-    property var focusedScreen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name)
+    property var focusedScreen: Quickshell.screens.find(s => s.name === Compositor.focusedMonitor?.name)
 
     property string currentIndicator: "volume"
     property var indicators: [
@@ -218,7 +218,7 @@ Scope {
             GlobalStates.osdVolumeOpen = !GlobalStates.osdVolumeOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "osdVolumeTrigger"
         description: "Triggers volume OSD on press"
 
@@ -226,7 +226,7 @@ Scope {
             root.triggerOsd();
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "osdVolumeHide"
         description: "Hides volume OSD on press"
 

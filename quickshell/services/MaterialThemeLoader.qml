@@ -78,7 +78,7 @@ Singleton {
         Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--mode", currentlyDark ? "light" : "dark", "--noswitch"]);
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "toggleLightDark"
         description: "Toggles between dark theme and light theme"
 

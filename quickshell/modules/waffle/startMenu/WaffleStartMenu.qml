@@ -100,7 +100,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "searchToggle"
         description: "Toggles search on press"
 
@@ -108,7 +108,7 @@ Scope {
             GlobalStates.searchOpen = !GlobalStates.searchOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "searchToggleRelease"
         description: "Toggles search on release"
 
@@ -124,7 +124,7 @@ Scope {
             GlobalStates.searchOpen = !GlobalStates.searchOpen;
         }
     }
-    GlobalShortcut {
+    NiriShortcut {
         name: "searchToggleReleaseInterrupt"
         description: "Interrupts possibility of search being toggled on release. " + "This is necessary because GlobalShortcut.onReleased in quickshell triggers whether or not you press something else while holding the key. " + "To make sure this works consistently, use binditn = MODKEYS, catchall in an automatically triggered submap that includes everything."
 
@@ -133,7 +133,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "overviewClipboardToggle"
         description: "Toggle clipboard query on overview widget"
 
@@ -142,7 +142,7 @@ Scope {
         }
     }
 
-    GlobalShortcut {
+    NiriShortcut {
         name: "overviewEmojiToggle"
         description: "Toggle emoji query on overview widget"
 

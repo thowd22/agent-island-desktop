@@ -83,8 +83,14 @@ Singleton {
         }
     }
 
+    /// Apply temperature + gamma via gammastep (see scripts/colors/nightlight.sh).
+    function applyNightLight(temperature, gammaPercent) {
+        Quickshell.execDetached(["bash", "-c",
+            `'${Directories.scriptPath.replace(/file:\/\//, "")}/colors/nightlight.sh' ${temperature} ${gammaPercent}`]);
+    }
+
     function startHyprsunset() {
-        Quickshell.execDetached(["bash", "-c", `pidof hyprsunset || hyprsunset`]);
+        // niri: gammastep is (re)started by nightlight.sh on each change, no daemon to pre-start.
     }
 
     function load() {
@@ -107,13 +113,13 @@ Singleton {
 
         // console.log("[Hyprsunset] Enabling");
         root.startHyprsunset();
-        Quickshell.execDetached(["bash", "-c", `hyprctl hyprsunset temperature ${root.colorTemperature}`]);
+        root.applyNightLight(root.colorTemperature, root.gamma);
     }
 
     function disableTemperature() {
         root.temperatureActive = false;
         // console.log("[Hyprsunset] Disabling");
-        Quickshell.execDetached(["bash", "-c", `hyprctl hyprsunset temperature ${root.defaultColorTemperature}`]);
+        root.applyNightLight(root.defaultColorTemperature, 100);
     }
 
     function setGamma(gamma) {
@@ -122,7 +128,7 @@ Singleton {
         root.gammaChangeAttempt();
 
         root.startHyprsunset();
-        Quickshell.execDetached(["bash", "-c", `hyprctl hyprsunset gamma ${root.gamma}`]);
+        root.applyNightLight(root.temperatureActive ? root.colorTemperature : root.defaultColorTemperature, root.gamma);
     }
 
     function fetchState() {
@@ -132,15 +138,13 @@ Singleton {
     Process {
         id: fetchProc
         running: true
-        command: ["bash", "-c", "hyprctl hyprsunset temperature"]
+        command: ["bash", "-c", "pgrep -x gammastep >/dev/null && echo active || echo \"\""]
         stdout: StdioCollector {
             id: stateCollector
             onStreamFinished: {
                 const output = stateCollector.text.trim();
-                if (output.length == 0 || output.startsWith("Couldn't"))
-                    root.temperatureActive = false;
-                else
-                    root.temperatureActive = (output != root.defaultColorTemperature); // 6000 is the default when off
+                // niri/gammastep: a running gammastep means night light is on.
+                root.temperatureActive = (output === "active");
                 // console.log("[Hyprsunset] Fetched state:", output, "->", root.temperatureActive);
             }
         }
@@ -166,7 +170,7 @@ Singleton {
         target: Config.options.light.night
         function onColorTemperatureChanged() {
             if (!root.temperatureActive) return;
-            Quickshell.execDetached(["hyprctl", "hyprsunset", "temperature", `${Config.options.light.night.colorTemperature}`]);
+            root.applyNightLight(Config.options.light.night.colorTemperature, root.gamma);
         }
     }
 }
