@@ -115,6 +115,39 @@ Pink, urgent Red, inactive "Current Line", overview backdrop `#191A21`.
 **niri has no font option at all** (`font` is an unknown config node) — it exposes
 no text styling, so "JetBrains everywhere" covers the shell, not the compositor.
 
+## Gotcha: KDE autostart apps black out the desktop
+
+Symptom: a niri session that is **entirely black**, even though `niri` and
+`qs -c openagentisland` are both running and the shell logs "Configuration Loaded"
+with no errors.
+
+Cause: `niri --session` runs **xdg-desktop-autostart**, and
+`/etc/xdg/autostart/org.kde.xwaylandvideobridge.desktop` has no `OnlyShowIn`, so
+KDE's `xwaylandvideobridge` starts under niri too. It opens a genuinely
+*fullscreen* window, and the shell's `background.hideWhenFullscreen` then
+correctly hides the wallpaper, background and screen corners.
+
+Diagnosis without a working screen — this works over SSH or from a TTY, and does
+not need the VT to be active:
+
+```sh
+export NIRI_SOCKET=$(ls -t /run/user/1000/niri.wayland-*.sock | head -1)
+niri msg -j layers   # expect quickshell:background + quickshell:screenCorners
+niri msg -j windows  # look for an unexpected fullscreen window
+```
+
+If `quickshell:background` is **missing** from the layer list, something is
+being treated as fullscreen. Kill the offender and it reappears immediately.
+
+Fix: `~/.config/autostart/org.kde.xwaylandvideobridge.desktop` overrides the
+system copy with `NotShowIn=niri;` — out of niri, unchanged under KDE. Any other
+KDE autostart that misbehaves can be handled the same way; `ls /etc/xdg/autostart/`
+lists the candidates.
+
+Note that a `grim` screenshot taken while the VT is switched away is **always**
+pure black, so it is useless as evidence either way — capture while the session
+is actually on screen.
+
 ## Known gaps
 
 - **`HyprlandFocusGrab`** (7 sites) uses a Hyprland-only protocol. It no-ops on
