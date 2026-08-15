@@ -57,7 +57,7 @@ FocusScope {
                 color: active ? (modelData.destructive ? Qt.rgba(0.9, 0.3, 0.3, 0.22) : Qt.rgba(0.54, 0.70, 0.97, 0.20))
                               : Qt.rgba(1, 1, 1, 0.05)
                 border.width: 1
-                border.color: active ? (modelData.destructive ? "#E06A6A" : IslandStyle.accent) : "transparent"
+                border.color: active ? (modelData.destructive ? "#FF5555" : IslandStyle.accent) : "transparent"
                 Behavior on color { ColorAnimation { duration: 120 } }
 
                 ColumnLayout {
@@ -68,7 +68,7 @@ FocusScope {
                         text: btn.modelData.icon
                         iconSize: 24
                         fill: btn.active ? 1 : 0
-                        color: btn.modelData.destructive && btn.active ? "#E06A6A" : IslandStyle.textColor
+                        color: btn.modelData.destructive && btn.active ? "#FF5555" : IslandStyle.textColor
                     }
                     StyledText {
                         Layout.alignment: Qt.AlignHCenter

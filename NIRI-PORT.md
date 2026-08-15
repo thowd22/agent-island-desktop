@@ -88,6 +88,33 @@ tools/run-nested-niri.sh 25
 
 Quickshell still hot-reloads on file save.
 
+## Theming: Dracula + JetBrains Mono
+
+`tools/apply-dracula.sh` is the single entry point. It:
+
+1. writes all 53 Material 3 roles as a hand-mapped Dracula palette to
+   `~/.local/state/quickshell/user/generated/colors.json`;
+2. sets every shell font role to `JetBrainsMono Nerd Font`;
+3. sets `appearance.wallpaperTheming.enable*` to **false**, so changing wallpaper
+   no longer regenerates the palette over the top of Dracula.
+
+Re-run it any time to restore the theme. Dracula has no Material "container"
+tones, so those are darkened/lightened companions of the accent hues, chosen to
+keep Material's contrast pairings readable.
+
+The three islands don't use the Material palette — `modules/ii/island/IslandStyle.qml`
+holds their own tokens, plus per-module semantic colours (agent status, battery,
+kanban). Those were remapped to Dracula in-source. **One deliberate change:** the
+pill was pitch black `#000000`; it is now Dracula's darkest `#191A21`, which still
+reads as a black notch but is an actual palette colour. Set `pillColor` back to
+`#000000` for the original look.
+
+niri itself is themed in `~/.config/niri/config.kdl`: focus ring Purple, border
+Pink, urgent Red, inactive "Current Line", overview backdrop `#191A21`.
+
+**niri has no font option at all** (`font` is an unknown config node) — it exposes
+no text styling, so "JetBrains everywhere" covers the shell, not the compositor.
+
 ## Known gaps
 
 - **`HyprlandFocusGrab`** (7 sites) uses a Hyprland-only protocol. It no-ops on

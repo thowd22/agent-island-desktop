@@ -100,7 +100,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: IslandStyle.accent
                 border.width: 3
-                border.color: "#0A0A0C"
+                border.color: "#191A21"
                 property bool dragging: false
                 Behavior on y { enabled: !knob.dragging; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
                 Binding {

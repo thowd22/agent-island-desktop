@@ -16,13 +16,13 @@ Item {
 
     readonly property color tint: {
         switch (root.mode) {
-        case "working": return "#7AA2F7";    // blue
-        case "running": return "#7EE787";    // green
-        case "waiting": return "#9BB1C9";     // soft blue-grey — calm "waiting for you"
-        case "permission": return "#E8A23D";  // orange — attention (permission only)
-        case "compact": return "#B58AF8";     // purple
-        case "done": return "#7EE787";        // green
-        default: return "#9AA0AA";            // idle grey
+        case "working": return "#8BE9FD";    // Dracula Cyan
+        case "running": return "#50FA7B";    // Dracula Green
+        case "waiting": return "#6272A4";     // Dracula Comment — calm "waiting for you"
+        case "permission": return "#FFB86C";  // Dracula Orange — attention (permission only)
+        case "compact": return "#BD93F9";     // Dracula Purple
+        case "done": return "#50FA7B";        // Dracula Green
+        default: return "#6272A4";            // Dracula Comment — idle
         }
     }
     readonly property bool showBars: root.mode === "working" || root.mode === "compact"
@@ -114,7 +114,7 @@ Item {
         property int gw: 8
         property int gh: 8
         property int cell: 2
-        property color col: "#ffffff"
+        property color col: "#F8F8F2"
         implicitWidth: gw * cell
         implicitHeight: gh * cell
         onPixelsChanged: pc.requestPaint()

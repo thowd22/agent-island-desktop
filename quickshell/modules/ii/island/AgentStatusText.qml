@@ -60,7 +60,7 @@ Item {
             gradient: Gradient {
                 orientation: Gradient.Horizontal
                 GradientStop { position: 0.0; color: "transparent" }
-                GradientStop { position: 0.5; color: "#FFFFFF" }
+                GradientStop { position: 0.5; color: "#F8F8F2" }
                 GradientStop { position: 1.0; color: "transparent" }
             }
             NumberAnimation on x {

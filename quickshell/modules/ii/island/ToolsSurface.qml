@@ -63,7 +63,7 @@ FocusScope {
         color: tbHover.hovered ? (danger ? Qt.rgba(0.9, 0.3, 0.3, 0.22) : Qt.rgba(0.54, 0.70, 0.97, 0.18))
                                : Qt.rgba(1, 1, 1, 0.05)
         border.width: 1
-        border.color: danger ? "#E06A6A" : "transparent"
+        border.color: danger ? "#FF5555" : "transparent"
         Behavior on color { ColorAnimation { duration: 120 } }
         ColumnLayout {
             anchors.centerIn: parent
@@ -73,7 +73,7 @@ FocusScope {
                 text: tb.icon
                 iconSize: 23
                 fill: 1
-                color: tb.danger ? "#E06A6A" : IslandStyle.textColor
+                color: tb.danger ? "#FF5555" : IslandStyle.textColor
             }
             StyledText {
                 Layout.alignment: Qt.AlignHCenter

@@ -106,13 +106,13 @@ Scope {
                             Layout.alignment: Qt.AlignVCenter
                             icon: "speed"
                             value: ResourceUsage.cpuUsage
-                            ringColor: ResourceUsage.cpuUsage > 0.9 ? "#FF6B6B" : IslandStyle.textColor
+                            ringColor: ResourceUsage.cpuUsage > 0.9 ? "#FF5555" : IslandStyle.textColor
                         }
                         MetricRing {
                             Layout.alignment: Qt.AlignVCenter
                             icon: "memory"
                             value: ResourceUsage.memoryUsedPercentage
-                            ringColor: ResourceUsage.memoryUsedPercentage > 0.9 ? "#FF6B6B" : IslandStyle.textColor
+                            ringColor: ResourceUsage.memoryUsedPercentage > 0.9 ? "#FF5555" : IslandStyle.textColor
                         }
                         MetricRing {
                             Layout.alignment: Qt.AlignVCenter
@@ -125,7 +125,7 @@ Scope {
                             visible: Battery.available
                             icon: Battery.isCharging ? "bolt" : "battery_full"
                             value: Battery.percentage
-                            ringColor: (Battery.isLow && !Battery.isCharging) ? "#FF6B6B"
+                            ringColor: (Battery.isLow && !Battery.isCharging) ? "#FF5555"
                                 : Battery.isCharging ? IslandStyle.accent : IslandStyle.textColor
                         }
                     }
@@ -309,7 +309,7 @@ Scope {
                         text: "power_settings_new"
                         iconSize: 18
                         fill: 1
-                        color: powerHover.hovered ? "#FF6B6B" : IslandStyle.textColor
+                        color: powerHover.hovered ? "#FF5555" : IslandStyle.textColor
                         Behavior on color { ColorAnimation { duration: 150; easing.type: Easing.OutQuad } }
                     }
                     HoverHandler { id: powerHover }

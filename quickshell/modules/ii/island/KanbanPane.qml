@@ -17,7 +17,7 @@ Item {
     property real dragY: 0
 
     readonly property var colTitles: ["To Do", "In Progress", "Done"]
-    readonly property var colAccents: ["#8AB4F8", "#E7C56B", "#A0E7A0"]
+    readonly property var colAccents: ["#BD93F9", "#F1FA8C", "#50FA7B"]
 
     RowLayout {
         id: cols

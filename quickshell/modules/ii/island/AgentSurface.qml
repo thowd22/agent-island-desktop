@@ -15,10 +15,10 @@ FocusScope {
     focus: true
     Keys.onEscapePressed: Island.close()
 
-    readonly property color cOrange: "#E8A23D"
-    readonly property color cGreen: "#7EE787"
-    readonly property color cBlue: "#7AA2F7"
-    readonly property color cRed: "#E05561"
+    readonly property color cOrange: "#FFB86C"
+    readonly property color cGreen: "#50FA7B"
+    readonly property color cBlue: "#8BE9FD"
+    readonly property color cRed: "#FF5555"
     readonly property bool hasPermission: AgentService.pendingPermissions.length > 0
     property string expandedId: ""  // "" → the first (most-urgent) row is expanded
     property bool viewList: false   // peek the list while a permission is pending
@@ -345,14 +345,14 @@ FocusScope {
                     }
                     PermBtn {
                         label: "Allow All"
-                        accent: Qt.rgba(0.91, 0.64, 0.24, 0.85)
-                        fg: "#1A1206"
+                        accent: Qt.rgba(1.0, 0.722, 0.424, 0.85)
+                        fg: "#21222C"
                         onClicked: { if (p) AgentService.allowAll(p.request_id); }
                     }
                     PermBtn {
                         label: confirmingBypass ? "Confirm?" : "Bypass"
-                        accent: confirmingBypass ? surf.cRed : Qt.rgba(0.88, 0.33, 0.38, 0.45)
-                        fg: confirmingBypass ? "#FFFFFF" : surf.cRed
+                        accent: confirmingBypass ? surf.cRed : Qt.rgba(1.0, 0.333, 0.333, 0.45)
+                        fg: confirmingBypass ? "#F8F8F2" : surf.cRed
                         onClicked: {
                             if (!confirmingBypass) {
                                 confirmingBypass = true;

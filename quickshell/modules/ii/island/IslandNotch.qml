@@ -382,7 +382,7 @@ Scope {
                     }
                     OsdBar {
                         value: notchWindow.brightnessMonitor?.brightness ?? 0
-                        accent: "#FFD479"
+                        accent: "#F1FA8C"
                     }
                     OsdPercent { value: notchWindow.brightnessMonitor?.brightness ?? 0 }
                 }
@@ -543,7 +543,7 @@ Scope {
                                 : m === "working" ? "Working" : m === "done" ? "Done" : "Agent Island"
                             animateDots: t === "" && (m === "working" || m === "waiting")
                             shimmer: t === "" && (m === "working" || m === "waiting" || m === "permission")
-                            baseColor: (t !== "" || m === "done") ? "#7EE787" : IslandStyle.textColor
+                            baseColor: (t !== "" || m === "done") ? "#50FA7B" : IslandStyle.textColor
                             pixelSize: Appearance.font.pixelSize.small
                         }
                         StyledText {
