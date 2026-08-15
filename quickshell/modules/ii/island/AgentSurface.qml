@@ -236,7 +236,11 @@ FocusScope {
                         }
                     }
                     Chip { Layout.alignment: Qt.AlignVCenter; label: "Claude" }
-                    ModeChip { Layout.alignment: Qt.AlignVCenter; sess: ({ "id": p?.session_id ?? "", "mode": sess?.mode ?? "default" }) }
+                    // `card.` qualification matters: an unqualified `sess` here resolves
+                    // to ModeChip's OWN sess property (the one being assigned), not the
+                    // card's session — a self-reference that QML reports as a binding
+                    // loop and which left the mode always reading "default".
+                    ModeChip { Layout.alignment: Qt.AlignVCenter; sess: ({ "id": card.p?.session_id ?? "", "mode": card.sess?.mode ?? "default" }) }
                     StyledText {
                         Layout.alignment: Qt.AlignVCenter
                         visible: AgentService.pendingPermissions.length > 1
