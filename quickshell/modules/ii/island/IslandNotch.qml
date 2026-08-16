@@ -34,7 +34,7 @@ Scope {
     readonly property int maxWidth: 1100          // widest open surface (overview) — also sizes the window
     readonly property int maxHeight: 400
     readonly property int expandedMaxWidth: 480   // cap for transient OSDs (volume/brightness/media/notif)
-    readonly property int reservedStrip: 40       // top space reserved for the island strip
+    readonly property int reservedStrip: 34       // top strip reserved for the island; + niri gaps = clearance
 
     // Open-state surface sizes — notch body w×h per named surface (Island.openSurface).
     readonly property var surfaceSizes: ({
