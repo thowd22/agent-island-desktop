@@ -1,0 +1,385 @@
+// niri config — tuned for the OpenAgentIsland Quickshell shell (niri port)
+// Docs: /usr/share/doc/niri/wiki/  •  Reference: /usr/share/doc/niri/default-config.kdl
+
+input {
+    keyboard {
+        xkb {
+            // Empty = inherit from org.freedesktop.locale1 (localectl set-x11-keymap)
+        }
+        numlock
+    }
+
+    touchpad {
+        tap
+        dwt
+        natural-scroll
+        scroll-method "two-finger"
+        // Same flat (unaccelerated) profile as the mouse — niri's adaptive
+        // default is what made the pointer feel floaty. If flat now feels too
+        // slow to cross the screen, raise accel-speed (range -1.0 … 1.0);
+        // it's a plain speed multiplier, not acceleration.
+        accel-profile "flat"
+        accel-speed 0.2
+    }
+
+    mouse {
+        // Mirrors what KDE was using for "ELAN0676:00 04F3:3195 Mouse"
+        // (~/.config/kcminputrc): PointerAccelerationProfile=1 is libinput's
+        // FLAT profile, i.e. no acceleration — niri defaults to adaptive, which
+        // is what made the pointer feel floaty.
+        accel-profile "flat"
+        accel-speed 0.2          // KDE PointerAcceleration=0.200
+        scroll-factor 0.75       // KDE ScrollFactor=0.75
+    }
+
+    // "TPPS/2 Elan TrackPoint". Same flat profile for consistency with the
+    // mouse and touchpad. A TrackPoint is pressure-driven rather than
+    // distance-driven, so removing the acceleration ramp bites harder here than
+    // it does on a touchpad — if it now feels sluggish, raise accel-speed
+    // rather than going back to the adaptive profile.
+    trackpoint {
+        accel-profile "flat"
+        accel-speed 0.6
+    }
+
+    // The island reacts to the focused monitor; focus-follows-mouse keeps that intuitive.
+    focus-follows-mouse max-scroll-amount="0%"
+}
+
+// Built-in laptop display. Run `niri msg outputs` inside niri to see modes.
+output "eDP-1" {
+    // mode "1920x1080"
+    scale 1
+    transform "normal"
+}
+
+layout {
+    gaps 12
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    default-column-width { proportion 0.5; }
+
+    // Dracula: purple is the signature accent, pink the secondary,
+    // "Current Line" (#44475a) for anything inactive.
+    focus-ring {
+        width 2
+        active-color "#bd93f9"
+        inactive-color "#44475a"
+    }
+
+    border {
+        off
+        width 2
+        active-color "#ff79c6"
+        inactive-color "#44475a"
+        urgent-color "#ff5555"
+    }
+
+    shadow {
+        on
+        softness 24
+        spread 3
+        offset x=0 y=4
+        color "#191a21aa"
+    }
+
+    // The floating islands are layer-shell surfaces that set their own exclusive
+    // zone, so no top strut is needed here. If the notch ever overlaps windows,
+    // add `top 8` below.
+    struts {
+    }
+}
+
+// --- Startup ---------------------------------------------------------------
+
+// XWayland support (niri has no built-in XWayland).
+spawn-at-startup "xwayland-satellite"
+
+// The shell is started by systemd (~/.config/systemd/user/agent-island.service)
+// instead of here, so it is SUPERVISED — Quickshell 0.2.1 can abort in its icon
+// image provider, and spawn-at-startup gives no restart. Two starters would give
+// two islands, so this stays commented out.
+//   systemctl --user status|restart agent-island.service
+// spawn-at-startup "qs" "-c" "openagentisland"
+
+// Keep secrets working (the shell's keyring scripts expect a running daemon).
+spawn-at-startup "gnome-keyring-daemon" "--start" "--components=secrets"
+
+// Idle handling. niri has none built in, so swayidle does it:
+//   lock         — handles logind's Lock signal, which is what the island's power
+//                  menu Lock button and `loginctl lock-session` emit. Without this
+//                  that button silently did nothing.
+//   before-sleep — locks BEFORE suspend/hibernate, so the machine never resumes unlocked.
+//   timeout 600  — lock after 10 minutes idle.
+//   timeout 900  — screen off after 15 (locked 5 minutes earlier), on again on input.
+// -w makes swayidle wait for swaylock to start before releasing the sleep inhibitor.
+spawn-at-startup "swayidle" "-w" "lock" "~/.config/niri/lock.sh" "before-sleep" "~/.config/niri/lock.sh" "timeout" "600" "~/.config/niri/lock.sh" "timeout" "900" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"
+
+environment {
+    DISPLAY ":0"
+    // Qt apps should use the Wayland backend under niri.
+    QT_QPA_PLATFORM "wayland"
+    // Let the shell know which compositor it's on (used by the niri port).
+    XDG_CURRENT_DESKTOP "niri"
+}
+
+// Dracula's darkest background sits behind the zoomed-out workspaces.
+overview {
+    backdrop-color "#191a21"
+}
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+prefer-no-csd
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+animations {
+    // Slightly snappier than default to match the island's spring feel.
+    slowdown 0.85
+}
+
+// --- Window rules ----------------------------------------------------------
+
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+// The shell's own dialogs (settings, kill dialog) look best floating.
+window-rule {
+    match app-id=r#"^quickshell$"#
+    open-floating true
+}
+
+// --- Layer rules -----------------------------------------------------------
+
+// The shell's namespaces are "quickshell", "quickshell:background",
+// "quickshell:islandLeft/Notch/Right", "quickshell:islandReserve" and
+// "quickshell:screenCorners" — note the COLON (`niri msg -j layers` lists them).
+//
+// No layer rules are needed: the islands already sit on the Top layer and the
+// wallpaper on Background. Deliberately NOT setting place-within-backdrop on
+// the wallpaper — it would show it in the overview, but layers in the backdrop
+// "ignore all input", which would kill the wallpaper's interactive widgets
+// (clock, weather).
+
+// --- Binds -----------------------------------------------------------------
+
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    Mod+T hotkey-overlay-title="Terminal" { spawn "ghostty"; }
+    Mod+Return hotkey-overlay-title="Terminal" { spawn "ghostty"; }
+    Mod+D hotkey-overlay-title="App launcher" { spawn "fuzzel"; }
+    Super+Alt+L hotkey-overlay-title="Lock the screen" { spawn "sh" "-c" "~/.config/niri/lock.sh"; }
+
+    // Restart the shell without logging out — handy while porting.
+    // Go through systemd, otherwise this spawns an UNSUPERVISED instance that
+    // won't come back if it crashes (and pkill -f would race the new one).
+    Mod+Ctrl+Shift+S hotkey-overlay-title="Restart the island shell" {
+        spawn "systemctl" "--user" "restart" "agent-island.service";
+    }
+
+    // --- Island shell surfaces -------------------------------------------
+    // niri does not implement hyprland_global_shortcuts_v1, so instead of the
+    // compositor pushing shortcuts into the shell, these binds call into it over
+    // Quickshell IPC. `qs -c openagentisland ipc call shortcuts list` prints every
+    // name the shell answers to.
+
+    Mod+Space hotkey-overlay-title="Search / launcher" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "searchToggle";
+    }
+    Mod+A hotkey-overlay-title="Left sidebar" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "sidebarLeftToggle";
+    }
+    Mod+N hotkey-overlay-title="Right sidebar / notifications" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "sidebarRightToggle";
+    }
+    Mod+Grave hotkey-overlay-title="Workspace overview (shell)" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "overviewWorkspacesToggle";
+    }
+    Mod+Ctrl+V hotkey-overlay-title="Clipboard history" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "overviewClipboardToggle";
+    }
+    Mod+Ctrl+Period hotkey-overlay-title="Emoji picker" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "overviewEmojiToggle";
+    }
+    Mod+Slash hotkey-overlay-title="Keybind cheatsheet" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "cheatsheetToggle";
+    }
+    Mod+X hotkey-overlay-title="Session / power menu" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "sessionToggle";
+    }
+    Mod+Shift+M hotkey-overlay-title="Media controls" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "mediaControlsToggle";
+    }
+    Mod+Shift+W hotkey-overlay-title="Wallpaper selector" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "wallpaperSelectorToggle";
+    }
+    Mod+Shift+T hotkey-overlay-title="Toggle light/dark" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "toggleLightDark";
+    }
+    Mod+Shift+S hotkey-overlay-title="Region screenshot (shell)" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "regionScreenshot";
+    }
+    Mod+Shift+O hotkey-overlay-title="Region OCR" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "regionOcr";
+    }
+    Super+Alt+K hotkey-overlay-title="On-screen keyboard" {
+        spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger" "oskToggle";
+    }
+
+    // Volume / media / brightness
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
+    XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+
+    XF86AudioPlay allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioStop allow-when-locked=true { spawn-sh "playerctl stop"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "playerctl previous"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "playerctl next"; }
+
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+5%"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "5%-"; }
+
+    Mod+O repeat=false { toggle-overview; }
+    Mod+Q repeat=false { close-window; }
+
+    // Focus
+    Mod+Left  { focus-column-left; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
+
+    // Move
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Down  { move-window-down; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+    Mod+Ctrl+L     { move-column-right; }
+
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
+
+    // Monitors
+    Mod+Shift+Left  { focus-monitor-left; }
+    Mod+Shift+Down  { focus-monitor-down; }
+    Mod+Shift+Up    { focus-monitor-up; }
+    Mod+Shift+Right { focus-monitor-right; }
+
+    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+
+    // Workspaces
+    Mod+Page_Down      { focus-workspace-down; }
+    Mod+Page_Up        { focus-workspace-up; }
+    Mod+U              { focus-workspace-down; }
+    Mod+I              { focus-workspace-up; }
+    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+    Mod+Ctrl+U         { move-column-to-workspace-down; }
+    Mod+Ctrl+I         { move-column-to-workspace-up; }
+
+    Mod+Shift+Page_Down { move-workspace-down; }
+    Mod+Shift+Page_Up   { move-workspace-up; }
+
+    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+
+    Mod+WheelScrollRight      { focus-column-right; }
+    Mod+WheelScrollLeft       { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    Mod+Tab { focus-workspace-previous; }
+
+    // Column shaping
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+Comma  { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
+
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-column-width-back; }
+    Mod+Ctrl+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
+
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+M { maximize-window-to-edges; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+C { center-column; }
+    Mod+Ctrl+C { center-visible-columns; }
+
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    Mod+V       { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+    Mod+W { toggle-column-tabbed-display; }
+
+    // Screenshots — niri's built-in tools (replaces hyprshot).
+    Print { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
+
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    Mod+Shift+E { quit; }
+    Mod+Shift+P { power-off-monitors; }
+}

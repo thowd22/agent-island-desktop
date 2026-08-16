@@ -1,0 +1,28 @@
+[Unit]
+Description=Agent Island Desktop shell (Quickshell)
+Documentation=https://github.com/thowd22/agent-island-desktop
+# Tie the shell's lifetime to the graphical session, so it starts with niri and
+# stops with it.
+PartOf=graphical-session.target
+After=graphical-session.target
+# Never stop retrying: systemd's default start limit would give up after a few
+# rapid crashes and leave the desktop with no chrome at all.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/qs -c openagentisland
+
+# Quickshell 0.2.1 has a thread-safety bug in its icon image provider: it calls
+# QIcon::pixmap() from Qt's QQuickPixmapReader thread, and QPixmap is GUI-thread
+# only, which aborts on a pure-virtual call. It is rare but it takes the whole
+# desktop chrome with it — no island, no wallpaper, no screen corners — and
+# nothing brought it back. Supervise it so a crash costs a couple of seconds
+# instead of the rest of the session.
+Restart=always
+RestartSec=2
+
+Slice=session.slice
+
+[Install]
+WantedBy=graphical-session.target

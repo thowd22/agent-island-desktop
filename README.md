@@ -90,9 +90,16 @@ coordinates, and a surface opens only on the monitor you clicked.
 sudo dnf install niri quickshell xwayland-satellite fuzzel swaylock \
                  brightnessctl cliphist matugen cava wl-clipboard grim slurp gammastep
 
-git clone https://github.com/<you>/agent-island-desktop.git ~/Projects/agent-island-desktop
-ln -s ~/Projects/agent-island-desktop/quickshell ~/.config/quickshell/openagentisland
+git clone https://github.com/thowd22/agent-island-desktop.git ~/Projects/agent-island-desktop
+cd ~/Projects/agent-island-desktop
+dotfiles/install.sh          # --copy to copy instead of symlink
 ```
+
+`dotfiles/install.sh` installs everything around the shell — the niri config
+(keybinds, input, Dracula colours), the blurring lock script, swaylock's theme,
+the systemd unit that supervises the shell, and the KDE-autostart override that
+otherwise blacks out the desktop. It backs up anything it replaces, and symlinks
+by default so your edits flow back to the repo.
 
 Fonts (Material Symbols Rounded and a Nerd Font) are required — see
 [`NIRI-PORT.md`](NIRI-PORT.md#fedora-44-notes) for exactly which and why one

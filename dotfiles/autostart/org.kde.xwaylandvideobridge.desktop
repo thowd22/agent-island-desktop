@@ -1,0 +1,21 @@
+[Desktop Entry]
+# User override of /etc/xdg/autostart/org.kde.xwaylandvideobridge.desktop
+#
+# xwaylandvideobridge is a KDE helper that opens a genuinely FULLSCREEN window.
+# The system copy has no OnlyShowIn, so niri's xdg-desktop-autostart started it
+# too — and the island shell's `hideWhenFullscreen` then hid the wallpaper,
+# background and screen corners, leaving a black desktop.
+#
+# NotShowIn keeps it out of niri (XDG_CURRENT_DESKTOP=niri) while leaving it
+# working normally under KDE/Plasma.
+Type=Application
+Name=Xwayland Video Bridge
+GenericName=Share screens and windows to XWayland applications
+Exec=xwaylandvideobridge
+Icon=xwaylandvideobridge
+Categories=Qt;KDE;Utility;X-KDE-Utilities-Desktop;
+StartupNotify=false
+NoDisplay=true
+X-KDE-autostart-phase=2
+X-GNOME-Autostart-enabled=true
+NotShowIn=niri;

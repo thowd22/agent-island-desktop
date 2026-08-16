@@ -1,0 +1,41 @@
+# swaylock — Dracula, to match the desktop.
+# Colours: bg #282a36 · current-line #44475a · fg #f8f8f2 · comment #6272a4
+# purple #bd93f9 · pink #ff79c6 · red #ff5555 · green #50fa7b
+
+ignore-empty-password
+show-failed-attempts
+indicator-idle-visible
+indicator-radius=110
+indicator-thickness=8
+font=JetBrainsMono Nerd Font
+font-size=20
+
+# NOTE: screenshots / effect-blur / effect-vignette are swaylock-EFFECTS options.
+# Fedora ships vanilla swaylock (1.8.5), which rejects them — using them here
+# would stop the lock screen starting at all. Flat Dracula background instead.
+color=282a36
+
+# ring / inside per state
+inside-color=282a3699
+inside-clear-color=282a3699
+inside-ver-color=282a3699
+inside-wrong-color=282a3699
+
+ring-color=6272a4
+ring-clear-color=8be9fd
+ring-ver-color=bd93f9
+ring-wrong-color=ff5555
+
+key-hl-color=ff79c6
+bs-hl-color=ffb86c
+
+text-color=f8f8f2
+text-clear-color=f8f8f2
+text-ver-color=f8f8f2
+text-wrong-color=f8f8f2
+
+separator-color=00000000
+line-color=00000000
+line-clear-color=00000000
+line-ver-color=00000000
+line-wrong-color=00000000
