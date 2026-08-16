@@ -140,6 +140,14 @@ Note Fedora ships **vanilla swaylock**, so `screenshots`, `effect-blur` and
 `effect-vignette` (swaylock-*effects* options) will stop it starting — which
 fails open, leaving the screen unlocked.
 
+For a blurred lock screen without that fork, `~/.config/niri/lock.sh` captures
+the screen with `grim`, blurs it with ImageMagick (downscale → blur → upscale,
+which is much cheaper than a large-radius blur and matters because `swayidle -w`
+holds off suspend until the lock is up), and passes it to `swaylock -i`. The
+snapshot goes in `XDG_RUNTIME_DIR` with `umask 077` and is deleted once the lock
+is up. If any step fails it still locks, just without the image — locking must
+never fail open.
+
 The shell also contains its own themed lock screen (`modules/ii/lock/`), but it
 is **not wired up**: `Lock.qml` still shells out to `hyprctl dispatch`, so it is
 unported. See [`NIRI-PORT.md`](NIRI-PORT.md#known-gaps).
