@@ -1,0 +1,4 @@
+# Let the desktop's power-profile control drive TLP without a password prompt.
+# Exactly three fixed commands, no wildcards and no arguments the caller can
+# influence, so this grants nothing beyond switching power profile.
+__USER__ ALL=(root) NOPASSWD: /usr/sbin/tlp performance, /usr/sbin/tlp balanced, /usr/sbin/tlp power-saver

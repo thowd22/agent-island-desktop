@@ -66,6 +66,17 @@ echo "Enabling the shell service..."
 systemctl --user daemon-reload
 systemctl --user enable agent-island.service
 echo
+# Power profile control needs root to run tlp. Installed separately because the
+# rest of this script needs no privileges — and a malformed sudoers file breaks
+# sudo entirely, so it is validated with visudo BEFORE being put in place.
+if [ -f /usr/sbin/tlp ] && [ ! -f /etc/sudoers.d/tlp-profile ]; then
+    echo
+    echo "TLP detected. To let the desktop switch power profiles without a password:"
+    echo "  sed 's/__USER__/\$USER/' $REPO/dotfiles/sudoers.d/tlp-profile > /tmp/tlp-profile"
+    echo "  sudo visudo -c -f /tmp/tlp-profile && sudo install -m 0440 -o root -g root /tmp/tlp-profile /etc/sudoers.d/tlp-profile"
+fi
+
+echo
 echo "Done. Next:"
 echo "  tools/apply-dracula.sh                  # Dracula + JetBrainsMono Nerd Font"
 echo "  python3 bridge/install-hooks.py enable  # Claude Code agent bridge"

@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 import qs.modules.common
+import qs.services
 import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Layouts
@@ -8,13 +9,15 @@ import Quickshell.Io
 
 // Vertical power-profile slider with 3 stops: Performance (top) · Normal · Saver
 // (bottom). Drag the knob (snaps to nearest stop) or click a label/track to set.
-// Uses powerprofilesctl get/set.
+// Backed by TLP (see services/TlpProfile.qml): powerprofilesctl needs
+// power-profiles-daemon, which conflicts with TLP and so isn't installed.
 Rectangle {
     id: root
     radius: 14
     color: Qt.rgba(1, 1, 1, 0.05)
 
-    property string current: "balanced"
+    // Single source of truth: the kernel platform_profile TLP actually applied.
+    property string current: TlpProfile.profile
     // top → bottom
     readonly property var stops: [
         { "key": "performance", "icon": "rocket_launch", "label": "Performance" },
@@ -26,23 +29,13 @@ Rectangle {
         return i < 0 ? 1 : i;
     }
     function setMode(key) {
-        root.current = key; // optimistic; reconciled by getProf once set completes
-        setProc.command = ["powerprofilesctl", "set", key];
-        setProc.running = true;
+        TlpProfile.setProfile(key);
     }
 
-    Process {
-        id: setProc
-        // After setting, re-read the real profile so the slider snaps to actual
-        // state (reverts if the daemon rejected/failed the change).
-        onExited: getProf.running = true
-    }
-    Process {
-        id: getProf
-        command: ["powerprofilesctl", "get"]
-        stdout: SplitParser { onRead: d => root.current = d.trim() }
-    }
-    Component.onCompleted: getProf.running = true
+    // Re-read whenever the slider becomes visible, so it shows the truth even if
+    // TLP switched profile on its own while the panel was closed.
+    onVisibleChanged: if (visible) TlpProfile.refresh()
+    Component.onCompleted: TlpProfile.refresh()
 
     RowLayout {
         anchors.fill: parent

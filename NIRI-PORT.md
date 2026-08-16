@@ -66,8 +66,23 @@ Mod+N sidebars, Mod+Grave overview, Mod+X session, …).
 Fedora's official repos — no COPR needed.
 
 - **Not installed:** `power-profiles-daemon` conflicts with the existing **TLP**
-  setup, so it was deliberately skipped. The shell's power-profile toggle is
-  therefore inert.
+  setup, so it was deliberately skipped. That left Quickshell's `PowerProfiles`
+  and `powerprofilesctl` inert, so the island's profile toggle and the dashboard
+  slider did nothing. Both now go through `services/TlpProfile.qml` instead:
+
+  | control | TLP command | kernel platform_profile |
+  |---|---|---|
+  | Performance | `tlp performance` | `performance` |
+  | Normal | `tlp balanced` | `balanced` |
+  | Saver | `tlp power-saver` | `low-power` |
+
+  State is **read** from `/sys/firmware/acpi/platform_profile`, which is what TLP
+  actually applied and is world-readable — so the UI shows the truth, including
+  changes TLP makes itself on AC/battery, and reading needs no privileges.
+  Setting needs root; `dotfiles/sudoers.d/tlp-profile` grants NOPASSWD for those
+  three fixed commands only. Note the service is named `TlpProfile`, not
+  `PowerProfile`, because the latter collides with an enum in
+  `Quickshell.Services.UPower`.
 - **Fonts:** Material Symbols Rounded, JetBrainsMono Nerd Font, Readex Pro and
   Space Grotesk are installed to `~/.local/share/fonts/openagentisland`.
   **Google Sans Flex is not redistributable** and is unavailable in the open

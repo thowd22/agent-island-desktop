@@ -7,7 +7,6 @@ import qs.modules.ii.bar
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.UPower
 import Quickshell.Services.SystemTray
 
 /**
@@ -39,6 +38,11 @@ Item {
 
     implicitWidth: row.implicitWidth + 28
     implicitHeight: 40
+
+    // Re-read the power profile whenever the row is revealed. TLP can change it
+    // on its own (AC/battery, or `tlp` from a terminal), and refreshing on hover
+    // means what you see is always current without polling in the background.
+    onVisibleChanged: if (visible) TlpProfile.refresh()
 
     // ---- small shared bits -------------------------------------------
 
@@ -255,24 +259,16 @@ Item {
                     onActivated: Hyprsunset.toggleTemperature()
                 }
 
-                // performance profile toggle
+                // Power profile — cycles performance → balanced → power-saver.
+                // Driven by TLP (services/TlpProfile.qml), not Quickshell's
+                // PowerProfiles, which needs power-profiles-daemon and is inert
+                // on a TLP machine — that's why this button did nothing before.
                 IconBtn {
-                    text: !PowerProfiles.hasPerformanceProfile ? "airwave"
-                        : PowerProfiles.profile === PowerProfile.Performance ? "local_fire_department"
-                        : PowerProfiles.profile === PowerProfile.PowerSaver ? "energy_savings_leaf"
-                        : "airwave"
-                    onActivated: {
-                        if (PowerProfiles.hasPerformanceProfile) {
-                            switch (PowerProfiles.profile) {
-                            case PowerProfile.PowerSaver: PowerProfiles.profile = PowerProfile.Balanced; break;
-                            case PowerProfile.Balanced: PowerProfiles.profile = PowerProfile.Performance; break;
-                            case PowerProfile.Performance: PowerProfiles.profile = PowerProfile.PowerSaver; break;
-                            }
-                        } else {
-                            PowerProfiles.profile = PowerProfiles.profile === PowerProfile.Balanced
-                                ? PowerProfile.PowerSaver : PowerProfile.Balanced;
-                        }
-                    }
+                    text: TlpProfile.iconFor(TlpProfile.profile)
+                    baseColor: TlpProfile.profile === "performance" ? "#FFB86C"
+                        : TlpProfile.profile === "power-saver" ? "#50FA7B"
+                        : IslandStyle.textColor
+                    onActivated: TlpProfile.cycle()
                 }
 
                 // settings → the Quickshell settings window directly. It used to
