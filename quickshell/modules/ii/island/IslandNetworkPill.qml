@@ -59,7 +59,10 @@ Rectangle {
             }
         }
     }
-    Timer { interval: 1000; running: true; repeat: true; triggeredOnStart: true; onTriggered: netProc.running = true }
+    // Only poll while actually on screen. This spawns a bash+awk process every
+    // second; the pill lives in the hover status row, so unconditionally running
+    // it meant ~86k process spawns a day to compute throughput nobody was looking at.
+    Timer { interval: 1000; running: root.visible; repeat: true; triggeredOnStart: true; onTriggered: netProc.running = true }
 
     HoverHandler { id: hover }
 

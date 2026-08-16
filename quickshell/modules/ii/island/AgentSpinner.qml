@@ -13,6 +13,11 @@ Item {
     property string mode: "working"
     property int pixel: 2
     property bool animated: true
+    // Gate every animation on visibility too. These loop Animation.Infinite, and
+    // the notch is a FULL-SCREEN layer surface — so one invisible bobbing mascot
+    // still forced niri to composite the whole screen at 60fps, which showed up
+    // as pointer lag (libinput "event processing lagging behind").
+    readonly property bool _run: root.animated && root.visible
 
     readonly property color tint: {
         switch (root.mode) {
@@ -67,11 +72,11 @@ Item {
     property int barFrame: 0
     Timer {
         interval: root.intervalFor(root.mode)
-        running: root.animated
+        running: root._run
         repeat: true
         onTriggered: root.frame = (root.frame + 1) % root.framesFor(root.mode).length
     }
-    Timer { interval: 170; running: root.animated && root.showBars; repeat: true; onTriggered: root.barFrame = (root.barFrame + 1) % 4 }
+    Timer { interval: 170; running: root._run && root.showBars; repeat: true; onTriggered: root.barFrame = (root.barFrame + 1) % 4 }
 
     function barH(i) {
         const tbl = [[0.35, 0.85, 0.30], [0.85, 0.40, 0.70], [0.50, 1.00, 0.40], [1.00, 0.30, 0.80]];
@@ -84,20 +89,20 @@ Item {
     onModeChanged: { root.motionX = 0; root.motionY = 0; }
 
     SequentialAnimation on motionY { // celebrate hop (done)
-        running: root.animated && root.mode === "done"
+        running: root._run && root.mode === "done"
         loops: Animation.Infinite
         NumberAnimation { from: 0; to: -5 * root.pixel; duration: 200; easing.type: Easing.OutQuad }
         NumberAnimation { from: -5 * root.pixel; to: 0; duration: 260; easing.type: Easing.OutBounce }
         PauseAnimation { duration: 280 }
     }
     SequentialAnimation on motionY { // gentle bob (resting + calm waiting)
-        running: root.animated && (root.mode === "running" || root.mode === "idle" || root.mode === "waiting")
+        running: root._run && (root.mode === "running" || root.mode === "idle" || root.mode === "waiting")
         loops: Animation.Infinite
         NumberAnimation { from: 0; to: -1.5 * root.pixel; duration: 850; easing.type: Easing.InOutSine }
         NumberAnimation { from: -1.5 * root.pixel; to: 0; duration: 850; easing.type: Easing.InOutSine }
     }
     SequentialAnimation on motionX { // alert shake (permission only)
-        running: root.animated && root.mode === "permission"
+        running: root._run && root.mode === "permission"
         loops: Animation.Infinite
         NumberAnimation { from: 0; to: 1.5 * root.pixel; duration: 70 }
         NumberAnimation { from: 1.5 * root.pixel; to: -1.5 * root.pixel; duration: 110 }
