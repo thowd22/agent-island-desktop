@@ -212,6 +212,33 @@ respawns a clean one the next time an X client connects.
 This affects every X11 app, so it is easy to misattribute to whichever app you
 happened to notice first.
 
+## Tray: what shows up, and what has to be restarted
+
+The island's tray reads **StatusNotifierItem** only. Two things commonly aren't:
+
+- **Legacy XEmbed icons** (NoMachine's `nxrunner.bin --monitor` is one — it has
+  `DISPLAY` set and no `WAYLAND_DISPLAY`). `xembedsniproxy` translates them; see
+  `dotfiles/niri/tray-bridge.sh`.
+- **Apps with no tray at all.** Tailscale's official Linux package is CLI +
+  daemon only (`/usr/bin/tailscale`, `/usr/sbin/tailscaled`) — there is no GUI or
+  tray icon to find. `trayscale` (in Fedora's repos) provides one, and needs
+  `sudo tailscale set --operator=$USER` or it logs "Access denied: profiles
+  access denied" and never registers.
+
+**Restarting the shell drops every tray item.** Quickshell owns
+`org.kde.StatusNotifierWatcher`; when it restarts, clients must re-register.
+`xembedsniproxy` does this automatically, so XEmbed-proxied icons come back on
+their own. Native SNI clients often don't — trayscale doesn't — so after
+`systemctl --user restart agent-island.service` they need restarting too:
+
+```sh
+~/.config/niri/tray-bridge.sh      # XEmbed icons
+pkill -x trayscale && setsid trayscale --hide-window &
+```
+
+This only bites when the shell is restarted mid-session. On a normal login the
+shell starts first and autostart apps register against it.
+
 ## Known gaps
 
 - **`HyprlandFocusGrab`** (7 sites) uses a Hyprland-only protocol. It no-ops on

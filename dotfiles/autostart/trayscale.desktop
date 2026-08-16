@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Trayscale
+Comment=Tailscale tray icon (Tailscale's own Linux package ships no GUI)
+Exec=trayscale --hide-window
+Icon=dev.deedles.Trayscale
+Terminal=false
+Categories=Network;
+X-GNOME-Autostart-enabled=true

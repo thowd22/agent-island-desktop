@@ -41,6 +41,7 @@ place niri/tray-bridge.sh                              "$CONF/niri/tray-bridge.s
 place swaylock/config                                  "$CONF/swaylock/config"
 place systemd/user/agent-island.service                "$CONF/systemd/user/agent-island.service"
 place autostart/org.kde.xwaylandvideobridge.desktop    "$CONF/autostart/org.kde.xwaylandvideobridge.desktop"
+place autostart/trayscale.desktop                      "$CONF/autostart/trayscale.desktop"
 
 # The shell REWRITES this file whenever you change a setting in its UI, so it is
 # copied rather than linked — a symlink would turn every settings tweak into a
