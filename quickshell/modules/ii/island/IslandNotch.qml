@@ -106,6 +106,10 @@ Scope {
     // Permission is top-priority + sticky: auto-open the agent surface when a
     // request arrives (if nothing else is open) on the FOCUSED monitor, and close
     // back to compact when the last one is resolved.
+    //
+    // Note this only ever fires for modes Claude Code would have prompted for
+    // itself — the bridge leaves auto/bypass/accept-edits tool calls ungated, so
+    // auto mode never raises a card (see bridge/oai_hook.py).
     Connections {
         target: AgentService
         function onPendingPermissionsChanged() {
@@ -113,6 +117,30 @@ Scope {
                 Island.open("agent", root.focusedScreenName());
             else if (AgentService.pendingPermissions.length === 0 && Island.openSurface === "agent")
                 Island.close();
+        }
+    }
+
+    // The other reason to interrupt: Claude is waiting on YOU — a question, or a
+    // session gone idle (Claude Code's Notification hook). Pops the same surface
+    // as a permission, so "needs you" is never silent, and closes itself again
+    // once nothing is waiting. Only auto-closes what it auto-opened, so a surface
+    // you opened by hand is left alone.
+    property int _lastWaiting: 0
+    property bool _autoOpenedForAttention: false
+    Connections {
+        target: AgentService
+        function onWaitingCountChanged() {
+            const n = AgentService.waitingCount;
+            if (n > root._lastWaiting && Island.openSurface === "") {
+                Island.open("agent", root.focusedScreenName());
+                root._autoOpenedForAttention = true;
+            } else if (n === 0 && root._autoOpenedForAttention
+                       && Island.openSurface === "agent"
+                       && AgentService.pendingPermissions.length === 0) {
+                Island.close();
+                root._autoOpenedForAttention = false;
+            }
+            root._lastWaiting = n;
         }
     }
 

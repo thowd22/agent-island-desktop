@@ -83,6 +83,11 @@ Singleton {
     }
     readonly property bool active: root.headlineMode !== ""
 
+    /// Sessions actively waiting on you — Claude Code's Notification hook (a
+    /// question, or a prompt that has gone idle). Distinct from a permission
+    /// request, which has its own queue.
+    readonly property int waitingCount: root.sessionList.filter(s => s.status === "waiting").length
+
     // no-op so shell.qml can force-instantiate this singleton (→ server goes active)
     function load() {}
 
