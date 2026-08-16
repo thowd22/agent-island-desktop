@@ -17,12 +17,19 @@ import Quickshell.Services.SystemTray
  * notch and revealed on hover. Rendered BARE — no pill backgrounds — because the
  * notch itself is already the pill; groups are separated by hairlines instead.
  *
- * Layout:  search · workspace │ weather · network │ CPU RAM SWAP BAT │ tray │
+ * Layout:  search · workspace │ weather · network │ CPU RAM SWAP BAT │ tray
+ *              │ AGENT │
  *          ⏮ ⏯ ⏭ │ perf · settings · capture │ clock · power
  *
- * Workspaces and the clock deliberately also appear in the idle state, so
- * expanding reads as "more appears around what was already there" rather than a
- * different widget swapping in.
+ * The agent chip sits on the island's CENTRE LINE. The two halves live in boxes
+ * padded to the width of the wider one, so the centre never drifts as content
+ * appears and disappears. That matters because the compact notch shows agent
+ * status centred: hovering it expands the island, and the chip stays under the
+ * pointer instead of sliding away. The padding only applies while the chip is
+ * visible, so the row stays compact when no agent is running.
+ *
+ * Workspace and clock deliberately also appear in the idle state, so expanding
+ * reads as more appearing around what was already there, not a widget swap.
  */
 Item {
     id: root
@@ -84,6 +91,9 @@ Item {
         }
     }
 
+    // Width each half is padded to so the agent chip lands dead centre.
+    readonly property real halfWidth: Math.max(leftRow.implicitWidth, rightRow.implicitWidth)
+
     // ---- the row ------------------------------------------------------
 
     RowLayout {
@@ -91,156 +101,192 @@ Item {
         anchors.centerIn: parent
         spacing: 9
 
-        // search → launcher surface
-        IconBtn {
-            text: "search"
-            onActivated: Island.toggle("launcher", root.screenName)
+        // ===== LEFT HALF — hugs the centre, padded on its outer edge =====
+        Item {
+            Layout.alignment: Qt.AlignVCenter
+            implicitWidth: agentChip.visible ? root.halfWidth : leftRow.implicitWidth
+            implicitHeight: leftRow.implicitHeight
+
+            RowLayout {
+                id: leftRow
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 9
+
+                // search → launcher surface
+                IconBtn {
+                    text: "search"
+                    onActivated: Island.toggle("launcher", root.screenName)
+                }
+
+                // current workspace number — scroll to switch, click for the overview
+                IslandWorkspaceNumber {
+                    Layout.alignment: Qt.AlignVCenter
+                    screenName: root.screenName
+                }
+
+                Sep {}
+
+                // weather + network, drawn bare inside the island
+                IslandWeatherPill { bare: true; Layout.alignment: Qt.AlignVCenter }
+                IslandNetworkPill { bare: true; Layout.alignment: Qt.AlignVCenter }
+
+                Sep {}
+
+                // resources — click through to the dashboard for the detail view
+                Item {
+                    Layout.alignment: Qt.AlignVCenter
+                    implicitWidth: statsRow.implicitWidth
+                    implicitHeight: statsRow.implicitHeight
+
+                    RowLayout {
+                        id: statsRow
+                        anchors.centerIn: parent
+                        spacing: 7
+
+                        MetricRing {
+                            icon: "speed"
+                            value: ResourceUsage.cpuUsage
+                            ringColor: ResourceUsage.cpuUsage > 0.9 ? "#FF5555" : IslandStyle.textColor
+                        }
+                        MetricRing {
+                            icon: "memory"
+                            value: ResourceUsage.memoryUsedPercentage
+                            ringColor: ResourceUsage.memoryUsedPercentage > 0.9 ? "#FF5555" : IslandStyle.textColor
+                        }
+                        MetricRing {
+                            icon: "swap_horiz"
+                            value: ResourceUsage.swapUsedPercentage
+                            visible: ResourceUsage.swapUsedPercentage > 0
+                        }
+                        MetricRing {
+                            visible: Battery.available
+                            icon: Battery.isCharging ? "bolt" : "battery_full"
+                            value: Battery.percentage
+                            ringColor: (Battery.isLow && !Battery.isCharging) ? "#FF5555"
+                                : Battery.isCharging ? IslandStyle.accent : IslandStyle.textColor
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onPressed: Island.toggle("dashboard", root.screenName)
+                    }
+                }
+
+                // system tray — only when something is in it
+                Sep { visible: SystemTray.items.values.length > 0 }
+                SysTray {
+                    Layout.alignment: Qt.AlignVCenter
+                    visible: SystemTray.items.values.length > 0
+                    showSeparator: false
+                }
+            }
         }
 
-        // current workspace number — scroll to switch, click for the overview
-        IslandWorkspaceNumber {
+        // ===== CENTRE — agent status, clickable, on the centre line =====
+        Sep { visible: agentChip.visible }
+        IslandAgentChip {
+            id: agentChip
             Layout.alignment: Qt.AlignVCenter
             screenName: root.screenName
         }
+        Sep { visible: agentChip.visible }
 
-        Sep {}
-
-        // weather + network, drawn bare inside the island
-        IslandWeatherPill { bare: true; Layout.alignment: Qt.AlignVCenter }
-        IslandNetworkPill { bare: true; Layout.alignment: Qt.AlignVCenter }
-
-        Sep {}
-
-        // resources — click through to the dashboard for the detail view
+        // ===== RIGHT HALF — hugs the centre, padded on its outer edge =====
         Item {
             Layout.alignment: Qt.AlignVCenter
-            implicitWidth: statsRow.implicitWidth
-            implicitHeight: statsRow.implicitHeight
+            implicitWidth: agentChip.visible ? root.halfWidth : rightRow.implicitWidth
+            implicitHeight: rightRow.implicitHeight
 
             RowLayout {
-                id: statsRow
-                anchors.centerIn: parent
-                spacing: 7
+                id: rightRow
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 9
 
-                MetricRing {
-                    icon: "speed"
-                    value: ResourceUsage.cpuUsage
-                    ringColor: ResourceUsage.cpuUsage > 0.9 ? "#FF5555" : IslandStyle.textColor
-                }
-                MetricRing {
-                    icon: "memory"
-                    value: ResourceUsage.memoryUsedPercentage
-                    ringColor: ResourceUsage.memoryUsedPercentage > 0.9 ? "#FF5555" : IslandStyle.textColor
-                }
-                MetricRing {
-                    icon: "swap_horiz"
-                    value: ResourceUsage.swapUsedPercentage
-                    visible: ResourceUsage.swapUsedPercentage > 0
-                }
-                MetricRing {
-                    visible: Battery.available
-                    icon: Battery.isCharging ? "bolt" : "battery_full"
-                    value: Battery.percentage
-                    ringColor: (Battery.isLow && !Battery.isCharging) ? "#FF5555"
-                        : Battery.isCharging ? IslandStyle.accent : IslandStyle.textColor
-                }
-            }
-            MouseArea {
-                anchors.fill: parent
-                onPressed: Island.toggle("dashboard", root.screenName)
-            }
-        }
+                // Media transport. The notch has its own media state, but an active
+                // agent outranks it — so with a Claude session running you'd never
+                // reach the controls. Here they're always one hover away. Shown
+                // whenever a player exists, not just while playing, otherwise the
+                // controls would vanish the moment you paused and you could never
+                // press play.
+                RowLayout {
+                    id: mediaGroup
+                    Layout.alignment: Qt.AlignVCenter
+                    spacing: 5
+                    visible: MprisController.activePlayer !== null
 
-        // system tray — only when something is in it
-        Sep { visible: SystemTray.items.values.length > 0 }
-        SysTray {
-            Layout.alignment: Qt.AlignVCenter
-            visible: SystemTray.items.values.length > 0
-            showSeparator: false
-        }
-
-        // Media transport. The notch has its own media state, but an active agent
-        // outranks it — so with a Claude session running you'd never reach the
-        // controls. Here they're always one hover away. Shown whenever a player
-        // exists, not just while playing, otherwise the controls would vanish the
-        // moment you paused and you could never press play.
-        Sep { visible: mediaGroup.visible }
-        RowLayout {
-            id: mediaGroup
-            Layout.alignment: Qt.AlignVCenter
-            spacing: 5
-            visible: MprisController.activePlayer !== null
-
-            IconBtn {
-                text: "skip_previous"
-                iconSize: 17
-                // Dimmed when the player can't do it, matching the notch's media state.
-                opacity: MprisController.canGoPrevious ? 1 : 0.35
-                onActivated: MprisController.previous()
-            }
-            IconBtn {
-                text: (MprisController.activePlayer?.isPlaying ?? false) ? "pause" : "play_arrow"
-                iconSize: 20
-                onActivated: MprisController.togglePlaying()
-            }
-            IconBtn {
-                text: "skip_next"
-                iconSize: 17
-                opacity: MprisController.canGoNext ? 1 : 0.35
-                onActivated: MprisController.next()
-            }
-        }
-
-        Sep {}
-
-        // performance profile toggle
-        IconBtn {
-            text: !PowerProfiles.hasPerformanceProfile ? "airwave"
-                : PowerProfiles.profile === PowerProfile.Performance ? "local_fire_department"
-                : PowerProfiles.profile === PowerProfile.PowerSaver ? "energy_savings_leaf"
-                : "airwave"
-            onActivated: {
-                if (PowerProfiles.hasPerformanceProfile) {
-                    switch (PowerProfiles.profile) {
-                    case PowerProfile.PowerSaver: PowerProfiles.profile = PowerProfile.Balanced; break;
-                    case PowerProfile.Balanced: PowerProfiles.profile = PowerProfile.Performance; break;
-                    case PowerProfile.Performance: PowerProfiles.profile = PowerProfile.PowerSaver; break;
+                    IconBtn {
+                        text: "skip_previous"
+                        iconSize: 17
+                        // Dimmed when the player can't do it, matching the notch's media state.
+                        opacity: MprisController.canGoPrevious ? 1 : 0.35
+                        onActivated: MprisController.previous()
                     }
-                } else {
-                    PowerProfiles.profile = PowerProfiles.profile === PowerProfile.Balanced
-                        ? PowerProfile.PowerSaver : PowerProfile.Balanced;
+                    IconBtn {
+                        text: (MprisController.activePlayer?.isPlaying ?? false) ? "pause" : "play_arrow"
+                        iconSize: 20
+                        onActivated: MprisController.togglePlaying()
+                    }
+                    IconBtn {
+                        text: "skip_next"
+                        iconSize: 17
+                        opacity: MprisController.canGoNext ? 1 : 0.35
+                        onActivated: MprisController.next()
+                    }
+                }
+                Sep { visible: mediaGroup.visible }
+
+                // performance profile toggle
+                IconBtn {
+                    text: !PowerProfiles.hasPerformanceProfile ? "airwave"
+                        : PowerProfiles.profile === PowerProfile.Performance ? "local_fire_department"
+                        : PowerProfiles.profile === PowerProfile.PowerSaver ? "energy_savings_leaf"
+                        : "airwave"
+                    onActivated: {
+                        if (PowerProfiles.hasPerformanceProfile) {
+                            switch (PowerProfiles.profile) {
+                            case PowerProfile.PowerSaver: PowerProfiles.profile = PowerProfile.Balanced; break;
+                            case PowerProfile.Balanced: PowerProfiles.profile = PowerProfile.Performance; break;
+                            case PowerProfile.Performance: PowerProfiles.profile = PowerProfile.PowerSaver; break;
+                            }
+                        } else {
+                            PowerProfiles.profile = PowerProfiles.profile === PowerProfile.Balanced
+                                ? PowerProfile.PowerSaver : PowerProfile.Balanced;
+                        }
+                    }
+                }
+
+                // settings → right sidebar
+                IconBtn {
+                    text: "settings"
+                    iconSize: 19
+                    onActivated: GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen
+                }
+
+                // capture / screenshot tools
+                IconBtn {
+                    text: "ink_pen"
+                    iconSize: 17
+                    onActivated: Island.toggle("tools", root.screenName)
+                }
+
+                Sep {}
+
+                StyledText {
+                    Layout.alignment: Qt.AlignVCenter
+                    text: Qt.locale().toString(DateTime.clock.date, "h:mm AP")
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    font.weight: Font.Bold
+                    color: IslandStyle.textColor
+                }
+
+                IconBtn {
+                    text: "power_settings_new"
+                    hoverColor: "#FF5555"
+                    onActivated: Island.toggle("power", root.screenName)
                 }
             }
-        }
-
-        // settings → right sidebar
-        IconBtn {
-            text: "settings"
-            iconSize: 19
-            onActivated: GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen
-        }
-
-        // capture / screenshot tools
-        IconBtn {
-            text: "ink_pen"
-            iconSize: 17
-            onActivated: Island.toggle("tools", root.screenName)
-        }
-
-        Sep {}
-
-        StyledText {
-            Layout.alignment: Qt.AlignVCenter
-            text: Qt.locale().toString(DateTime.clock.date, "h:mm AP")
-            font.pixelSize: Appearance.font.pixelSize.smaller
-            font.weight: Font.Bold
-            color: IslandStyle.textColor
-        }
-
-        IconBtn {
-            text: "power_settings_new"
-            hoverColor: "#FF5555"
-            onActivated: Island.toggle("power", root.screenName)
         }
     }
 }
