@@ -148,6 +148,41 @@ Note that a `grim` screenshot taken while the VT is switched away is **always**
 pure black, so it is useless as evidence either way — capture while the session
 is actually on screen.
 
+## Gotcha: Quickshell can abort in its icon loader
+
+Quickshell 0.2.1 (Fedora's build) has a thread-safety bug: `IconImageProvider::
+requestPixmap` calls `QIcon::pixmap()` from Qt's `QQuickPixmapReader` **thread**,
+but `QPixmap` is GUI-thread only. The result is a pure-virtual call and SIGABRT:
+
+```
+#28 QQuickPixmapReader::run            <- async image-loader thread
+#15 QQuickPixmapReader::processJob
+#14 IconImageProvider::requestPixmap   <- quickshell
+#12 QIcon::pixmap
+#7  QPlatformPixmap::fromFile
+#6  __cxa_pure_virtual                 -> terminate -> abort
+```
+
+It is rare (once in a multi-hour session here) but it takes the entire desktop
+chrome down with it — island, wallpaper and screen corners all vanish at once,
+which reads like "the bar crashed". Look for it with:
+
+```sh
+coredumpctl list | grep quickshell
+coredumpctl info <pid> | grep -E '^\s+#[0-9]+ '
+```
+
+Suspect trigger: an icon that fails to resolve. The log shows misses like
+`Could not load icon "face-sad-symbolic"` and `"tools-report-bug"` around the
+crash, from tray items and notifications.
+
+**Mitigation:** run the shell under systemd rather than niri's
+`spawn-at-startup`, which offers no restart. `~/.config/systemd/user/
+agent-island.service` uses `Restart=always`, `RestartSec=2` and
+`StartLimitIntervalSec=0`. Verified by sending SIGABRT to the running shell: it
+came back on its own in 11 seconds. Keep the `spawn-at-startup` line commented
+out — two starters means two islands.
+
 ## Known gaps
 
 - **`HyprlandFocusGrab`** (7 sites) uses a Hyprland-only protocol. It no-ops on
