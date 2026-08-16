@@ -257,11 +257,15 @@ Item {
                     }
                 }
 
-                // settings → right sidebar
+                // settings → the Quickshell settings window directly. It used to
+                // toggle the right sidebar, which was a detour: the sidebar isn't
+                // settings, it just contains a shortcut to them. The sidebar is
+                // still on Mod+N.
                 IconBtn {
                     text: "settings"
                     iconSize: 19
-                    onActivated: GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen
+                    onActivated: Quickshell.execDetached(["bash", "-c",
+                        `'${Directories.scriptPath.replace(/file:\/\//, "")}/settings.sh'`])
                 }
 
                 // capture / screenshot tools
