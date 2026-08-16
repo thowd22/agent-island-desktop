@@ -183,6 +183,35 @@ agent-island.service` uses `Restart=always`, `RestartSec=2` and
 came back on its own in 11 seconds. Keep the `spawn-at-startup` line commented
 out — two starters means two islands.
 
+## Gotcha: don't start xwayland-satellite yourself
+
+Symptom: **no X11 application window ever appears.** The window exists in X —
+`xwininfo` shows it `IsViewable`, not override-redirect,
+`_NET_WM_WINDOW_TYPE_NORMAL` — but niri never lists it and nothing is drawn.
+It looks like a broken app; it is actually broken XWayland.
+
+Cause: niri 26.04 spawns and integrates xwayland-satellite **itself**, on demand:
+
+```
+niri::utils::xwayland::satellite: connection to X11 abstract socket; spawning xwayland-satellite
+```
+
+Adding `spawn-at-startup "xwayland-satellite"` on top of that starts a SECOND
+instance racing for the same display, and X clients end up on the one niri isn't
+wired to. Check with:
+
+```sh
+pgrep -af xwayland-satellite   # niri's has -listenfd; a bare one is yours
+```
+
+There should be exactly ONE, and it should have `-listenfd` arguments. Fix:
+remove the `spawn-at-startup` line, and don't pin `DISPLAY` in the `environment`
+block either — niri's integration sets it. Kill the leftover satellite; niri
+respawns a clean one the next time an X client connects.
+
+This affects every X11 app, so it is easy to misattribute to whichever app you
+happened to notice first.
+
 ## Known gaps
 
 - **`HyprlandFocusGrab`** (7 sites) uses a Hyprland-only protocol. It no-ops on

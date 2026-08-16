@@ -98,8 +98,12 @@ layout {
 
 // --- Startup ---------------------------------------------------------------
 
-// XWayland support (niri has no built-in XWayland).
-spawn-at-startup "xwayland-satellite"
+// XWayland: niri 26.04 spawns and integrates xwayland-satellite ITSELF, on
+// demand ("niri::utils::xwayland::satellite: spawning xwayland-satellite").
+// Starting a second one here made X clients land on an instance niri was not
+// wired to: their windows existed in X (IsViewable, _NET_WM_WINDOW_TYPE_NORMAL)
+// but never appeared as niri windows. NoMachine's UI was invisible because of it.
+// spawn-at-startup "xwayland-satellite"
 
 // The shell is started by systemd (~/.config/systemd/user/agent-island.service)
 // instead of here, so it is SUPERVISED — Quickshell 0.2.1 can abort in its icon
@@ -127,7 +131,8 @@ spawn-at-startup "gnome-keyring-daemon" "--start" "--components=secrets"
 spawn-at-startup "swayidle" "-w" "lock" "~/.config/niri/lock.sh" "before-sleep" "~/.config/niri/lock.sh" "timeout" "600" "~/.config/niri/lock.sh" "timeout" "900" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"
 
 environment {
-    DISPLAY ":0"
+    // DISPLAY is set by niri's own xwayland-satellite integration; don't pin it.
+    // DISPLAY ":0"
     // Qt apps should use the Wayland backend under niri.
     QT_QPA_PLATFORM "wayland"
     // Let the shell know which compositor it's on (used by the niri port).
