@@ -385,10 +385,15 @@ Scope {
                     RowLayout {
                         Layout.alignment: Qt.AlignVCenter
                         spacing: 3
-                        // Hidden exactly when it would read "100%" — not at
-                        // Battery.isFull, whose threshold is configurable and can
-                        // trip as low as 95.
-                        visible: Battery.available && Math.round(Battery.percentage * 100) < 100
+                        // On battery → always shown, however full it is: when nothing
+                        // is topping it up, the charge is worth watching. Plugged in,
+                        // it drops out once it would read "100%" (nothing left to
+                        // report). Explicitly tests Discharging rather than
+                        // !isPluggedIn, because a full battery on AC reports
+                        // FullyCharged — neither charging nor discharging.
+                        visible: Battery.available
+                            && (Battery.chargeState === UPowerDeviceState.Discharging
+                                || Math.round(Battery.percentage * 100) < 100)
 
                         MaterialSymbol {
                             Layout.alignment: Qt.AlignVCenter
