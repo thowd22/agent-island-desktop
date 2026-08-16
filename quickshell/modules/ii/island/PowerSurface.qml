@@ -18,6 +18,9 @@ FocusScope {
     readonly property var actions: [
         { "icon": "lock", "label": "Lock", "destructive": false, "night": false, "cmd": ["loginctl", "lock-session"] },
         { "icon": "nightlight", "label": "Night", "destructive": false, "night": true, "cmd": [] },
+        // Not marked destructive: hibernate restores the session exactly, so it
+        // belongs with Lock rather than with reboot/shutdown.
+        { "icon": "ac_unit", "label": "Hibernate", "destructive": false, "night": false, "cmd": ["systemctl", "hibernate"] },
         // niri port: was `hyprctl dispatch exit`. Quitting the compositor ends the
         // session; -s skips niri's "press Enter to confirm" prompt, since this menu
         // is already the confirmation step.
