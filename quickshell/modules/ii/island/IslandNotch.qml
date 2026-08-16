@@ -13,6 +13,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import Quickshell.Hyprland
 import Quickshell.Services.Mpris
+import Quickshell.Services.UPower
 
 // Center notch — top-attached, morphing. THE STAR.
 //
@@ -352,11 +353,11 @@ Scope {
                     onHoveredChanged: notchWindow.hovered = hovered
                 }
 
-                // ---- idle: workspaces + clock ----
+                // ---- idle: workspace · clock · weather · battery ----
                 RowLayout {
                     id: idleRow
                     anchors.centerIn: parent
-                    spacing: 12
+                    spacing: 11
                     opacity: notchWindow.islandState === "idle" ? 1 : 0
                     visible: opacity > 0
                     Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
@@ -369,7 +370,43 @@ Scope {
                         Layout.alignment: Qt.AlignVCenter
                         text: Qt.locale().toString(DateTime.clock.date, "h:mm AP")
                         font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.weight: Font.Bold
                         color: IslandStyle.textColor
+                    }
+                    IslandWeatherPill {
+                        bare: true
+                        Layout.alignment: Qt.AlignVCenter
+                    }
+
+                    // Battery, only while it's actually doing something — charging or
+                    // draining. At full there is nothing to report, so it drops out of
+                    // the resting island; hovering still shows the ring in the status
+                    // row, which is always present.
+                    RowLayout {
+                        Layout.alignment: Qt.AlignVCenter
+                        spacing: 3
+                        // Hidden exactly when it would read "100%" — not at
+                        // Battery.isFull, whose threshold is configurable and can
+                        // trip as low as 95.
+                        visible: Battery.available && Math.round(Battery.percentage * 100) < 100
+
+                        MaterialSymbol {
+                            Layout.alignment: Qt.AlignVCenter
+                            text: Battery.isCharging ? "battery_charging_full"
+                                : (Battery.isLow ? "battery_alert" : "battery_full")
+                            iconSize: 17
+                            fill: 1
+                            color: (Battery.isLow && !Battery.isCharging) ? "#FF5555"
+                                : Battery.isCharging ? IslandStyle.accent
+                                : IslandStyle.textColor
+                        }
+                        StyledText {
+                            Layout.alignment: Qt.AlignVCenter
+                            text: `${Math.round(Battery.percentage * 100)}%`
+                            font.pixelSize: Appearance.font.pixelSize.smaller
+                            color: (Battery.isLow && !Battery.isCharging) ? "#FF5555"
+                                : IslandStyle.textColor
+                        }
                     }
                 }
 

@@ -201,6 +201,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter
             text: Qt.locale().toString(DateTime.clock.date, "h:mm AP")
             font.pixelSize: Appearance.font.pixelSize.smaller
+            font.weight: Font.Bold
             color: IslandStyle.textColor
         }
 
