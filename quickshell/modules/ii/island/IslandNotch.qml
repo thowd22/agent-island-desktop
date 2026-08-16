@@ -369,11 +369,17 @@ Scope {
 
                 MouseArea {
                     anchors.fill: parent
-                    // Click the notch body from idle/OSD → open the dashboard. When a
-                    // surface is open, surfaceHost's absorber catches clicks (no
-                    // accidental close); close via Esc or re-clicking the trigger pill.
-                    // Declared before the content below, so the row's own handlers sit
-                    // on top and win; this only catches clicks on empty space.
+                    // Click the notch body → open the dashboard (or the agent surface
+                    // when the agent owns the display).
+                    //
+                    // DISABLED while the status row is up. The row's buttons use
+                    // TapHandler, which does NOT consume the press from a MouseArea
+                    // underneath — so this fired as well, and e.g. the settings gear
+                    // opened both the settings window AND the dashboard. In hover
+                    // state the row provides explicit targets, so nothing is lost.
+                    // It still works when hover is suppressed by a pending
+                    // permission, which is the one clickable non-hover state.
+                    enabled: notchWindow.islandState !== "hover"
                     onClicked: {
                         // open on THIS monitor (moves the surface here if another had it)
                         Island.open(notchWindow.displaySource === "agent" ? "agent" : "dashboard",
@@ -407,6 +413,18 @@ Scope {
                         font.weight: Font.Bold
                         color: IslandStyle.textColor
                     }
+
+                    // Caffeine (idle inhibitor) — only while it's holding sleep off,
+                    // so its presence alone is the signal.
+                    MaterialSymbol {
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: Idle.inhibit
+                        text: "coffee"
+                        iconSize: 16
+                        fill: 1
+                        color: IslandStyle.accent
+                    }
+
                     IslandWeatherPill {
                         bare: true
                         Layout.alignment: Qt.AlignVCenter

@@ -52,11 +52,14 @@ Item {
     component IconBtn: MaterialSymbol {
         id: btn
         property color hoverColor: IslandStyle.accent
+        /// Resting colour. Overriding `color` directly would break the hover
+        /// binding, so state-coloured buttons set this instead.
+        property color baseColor: IslandStyle.textColor
         signal activated
         Layout.alignment: Qt.AlignVCenter
         iconSize: 18
         fill: 1
-        color: btnHover.hovered ? btn.hoverColor : IslandStyle.textColor
+        color: btnHover.hovered ? btn.hoverColor : btn.baseColor
         Behavior on color { ColorAnimation { duration: 150; easing.type: Easing.OutQuad } }
         HoverHandler { id: btnHover }
         TapHandler { onTapped: btn.activated() }
@@ -283,6 +286,17 @@ Item {
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     font.weight: Font.Bold
                     color: IslandStyle.textColor
+                }
+
+                // Caffeine — same place as in the resting island, and clickable
+                // here so it can be turned off without opening the dashboard.
+                IconBtn {
+                    visible: Idle.inhibit
+                    text: "coffee"
+                    iconSize: 16
+                    baseColor: IslandStyle.accent
+                    hoverColor: "#FF5555"
+                    onActivated: Idle.toggleInhibit()
                 }
 
                 IconBtn {
