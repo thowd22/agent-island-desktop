@@ -108,6 +108,11 @@ spawn-at-startup "xwayland-satellite"
 //   systemctl --user status|restart agent-island.service
 // spawn-at-startup "qs" "-c" "openagentisland"
 
+// Bridge legacy XEmbed tray icons (NoMachine's monitor is one) into
+// StatusNotifierItem, which is what the island's tray reads. Without this the
+// tray is simply always empty for such apps.
+spawn-at-startup "sh" "-c" "~/.config/niri/tray-bridge.sh"
+
 // Keep secrets working (the shell's keyring scripts expect a running daemon).
 spawn-at-startup "gnome-keyring-daemon" "--start" "--components=secrets"
 

@@ -37,6 +37,7 @@ echo "Installing desktop config from $REPO"
 # Symlinked: hand-edited, and edits should flow back to the repo.
 place niri/config.kdl                                  "$CONF/niri/config.kdl"
 place niri/lock.sh                                     "$CONF/niri/lock.sh"
+place niri/tray-bridge.sh                              "$CONF/niri/tray-bridge.sh"
 place swaylock/config                                  "$CONF/swaylock/config"
 place systemd/user/agent-island.service                "$CONF/systemd/user/agent-island.service"
 place autostart/org.kde.xwaylandvideobridge.desktop    "$CONF/autostart/org.kde.xwaylandvideobridge.desktop"
@@ -57,7 +58,7 @@ if [ ! -e "$CONF/quickshell/openagentisland" ]; then
     echo "  linked  $CONF/quickshell/openagentisland -> $REPO/quickshell"
 fi
 
-chmod +x "$REPO/dotfiles/niri/lock.sh"
+chmod +x "$REPO/dotfiles/niri/lock.sh" "$REPO/dotfiles/niri/tray-bridge.sh"
 
 echo
 echo "Enabling the shell service..."
