@@ -148,13 +148,18 @@ def do_status(payload):
 def do_permission(payload):
     """PreToolUse: ask the notch. On ANY failure/timeout → exit 0, no output →
     Claude falls back to its normal permission prompt. NEVER auto-approve."""
-    # Respect the user's permission mode — don't gate what Claude itself wouldn't
-    # ask (Bypass = everything; Accept-Edits = file edits). Surface the activity as
-    # a plain status event and let it proceed ungated.
+    # Respect the user's permission mode — only gate what Claude Code would have
+    # asked about itself. Anything it decides on its own is surfaced as a plain
+    # status event and left to proceed ungated:
+    #   bypassPermissions — everything is pre-approved
+    #   auto              — Claude Code's own auto-approval classifier is in charge;
+    #                       gating here interrupts auto mode on every tool call
+    #   acceptEdits       — file edits are pre-approved (other tools still prompt)
     mode = payload.get("permission_mode", "default")
     tool = payload.get("tool_name", "")
     edit_tools = ("Edit", "Write", "MultiEdit", "NotebookEdit")
-    if mode == "bypassPermissions" or (mode == "acceptEdits" and tool in edit_tools):
+    ungated = ("bypassPermissions", "auto")
+    if mode in ungated or (mode == "acceptEdits" and tool in edit_tools):
         m = base_msg(payload)
         m["type"] = "event"
         try:
