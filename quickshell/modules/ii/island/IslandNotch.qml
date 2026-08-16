@@ -591,6 +591,21 @@ Scope {
                         }
                     }
 
+                    // Transport. Goes through MprisController rather than the player
+                    // directly — it checks canGoPrevious/canGoNext/canTogglePlaying
+                    // first, so players that don't support an action just no-op, and
+                    // the control dims to show it's unavailable.
+                    MaterialSymbol {
+                        Layout.alignment: Qt.AlignVCenter
+                        iconSize: 20
+                        fill: 1
+                        text: "skip_previous"
+                        color: MprisController.canGoPrevious ? IslandStyle.textColor : Qt.rgba(1, 1, 1, 0.28)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: MprisController.previous()
+                        }
+                    }
                     MaterialSymbol {
                         Layout.alignment: Qt.AlignVCenter
                         iconSize: 24
@@ -599,7 +614,18 @@ Scope {
                         text: root.mediaActive ? "pause" : "play_arrow"
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.activePlayer?.togglePlaying()
+                            onClicked: MprisController.togglePlaying()
+                        }
+                    }
+                    MaterialSymbol {
+                        Layout.alignment: Qt.AlignVCenter
+                        iconSize: 20
+                        fill: 1
+                        text: "skip_next"
+                        color: MprisController.canGoNext ? IslandStyle.textColor : Qt.rgba(1, 1, 1, 0.28)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: MprisController.next()
                         }
                     }
                 }

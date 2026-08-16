@@ -17,8 +17,8 @@ import Quickshell.Services.SystemTray
  * notch and revealed on hover. Rendered BARE — no pill backgrounds — because the
  * notch itself is already the pill; groups are separated by hairlines instead.
  *
- * Layout:  search · workspaces │ weather · network │ CPU RAM SWAP BAT │ tray │
- *          perf · settings · capture │ clock · power
+ * Layout:  search · workspace │ weather · network │ CPU RAM SWAP BAT │ tray │
+ *          ⏮ ⏯ ⏭ │ perf · settings · capture │ clock · power
  *
  * Workspaces and the clock deliberately also appear in the idle state, so
  * expanding reads as "more appears around what was already there" rather than a
@@ -157,6 +157,38 @@ Item {
             Layout.alignment: Qt.AlignVCenter
             visible: SystemTray.items.values.length > 0
             showSeparator: false
+        }
+
+        // Media transport. The notch has its own media state, but an active agent
+        // outranks it — so with a Claude session running you'd never reach the
+        // controls. Here they're always one hover away. Shown whenever a player
+        // exists, not just while playing, otherwise the controls would vanish the
+        // moment you paused and you could never press play.
+        Sep { visible: mediaGroup.visible }
+        RowLayout {
+            id: mediaGroup
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 5
+            visible: MprisController.activePlayer !== null
+
+            IconBtn {
+                text: "skip_previous"
+                iconSize: 17
+                // Dimmed when the player can't do it, matching the notch's media state.
+                opacity: MprisController.canGoPrevious ? 1 : 0.35
+                onActivated: MprisController.previous()
+            }
+            IconBtn {
+                text: (MprisController.activePlayer?.isPlaying ?? false) ? "pause" : "play_arrow"
+                iconSize: 20
+                onActivated: MprisController.togglePlaying()
+            }
+            IconBtn {
+                text: "skip_next"
+                iconSize: 17
+                opacity: MprisController.canGoNext ? 1 : 0.35
+                onActivated: MprisController.next()
+            }
         }
 
         Sep {}
