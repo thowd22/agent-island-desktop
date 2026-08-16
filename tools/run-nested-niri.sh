@@ -49,13 +49,15 @@ grim "$SP/island.png" 2>/dev/null && echo "screenshot: $SP/island.png" || echo "
 echo "--- IPC: shortcuts the shell is listening for ---"
 qs -c openagentisland ipc call shortcuts list 2>&1 | tee "$SP/shortcuts.txt" | wc -l | sed 's/^/  count: /'
 
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+
 echo "--- agent bridge: sending a fake Claude Code session to the island ---"
 ls -la "${XDG_RUNTIME_DIR:-/run/user/1000}/openagentisland.sock" 2>&1 | sed 's/^/  /'
-printf '%s' '{"hook_event_name":"SessionStart","session_id":"niri-port-test","cwd":"/home/admin2/Projects/openagentisland","transcript_path":"/tmp/x.jsonl"}' \
-    | python3 $(cd "$(dirname "$0")/.." && pwd)/bridge/oai_hook.py status
+printf '%s' '{"hook_event_name":"SessionStart","session_id":"niri-port-test","cwd":"'"$REPO"'","transcript_path":"/tmp/x.jsonl"}' \
+    | python3 "$REPO/bridge/oai_hook.py" status
 echo "  status hook exit: $?"
-printf '%s' '{"hook_event_name":"UserPromptSubmit","session_id":"niri-port-test","cwd":"/home/admin2/Projects/openagentisland","prompt":"port the island to niri"}' \
-    | python3 $(cd "$(dirname "$0")/.." && pwd)/bridge/oai_hook.py status
+printf '%s' '{"hook_event_name":"UserPromptSubmit","session_id":"niri-port-test","cwd":"'"$REPO"'","prompt":"port the island to niri"}' \
+    | python3 "$REPO/bridge/oai_hook.py" status
 echo "  prompt hook exit: $?"
 sleep 2
 grim "$SP/island-agent.png" 2>/dev/null && echo "screenshot: $SP/island-agent.png"
