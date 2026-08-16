@@ -361,12 +361,9 @@ Scope {
                     visible: opacity > 0
                     Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
 
-                    IslandWorkspaces {
+                    IslandWorkspaceNumber {
                         Layout.alignment: Qt.AlignVCenter
-                        usedColor: IslandStyle.textColor
-                        activeColor: IslandStyle.accent
-                        emptyOpacity: IslandStyle.inactiveOpacity
-                        capsuleWidth: 26
+                        screenName: notchWindow.screen.name ?? ""
                     }
                     StyledText {
                         Layout.alignment: Qt.AlignVCenter

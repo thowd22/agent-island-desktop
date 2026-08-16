@@ -97,25 +97,10 @@ Item {
             onActivated: Island.toggle("launcher", root.screenName)
         }
 
-        // workspaces — dots handle their own clicks; right-click opens the overview
-        Item {
+        // current workspace number — scroll to switch, click for the overview
+        IslandWorkspaceNumber {
             Layout.alignment: Qt.AlignVCenter
-            implicitWidth: wsFull.implicitWidth
-            implicitHeight: wsFull.implicitHeight
-
-            IslandWorkspaces {
-                id: wsFull
-                anchors.centerIn: parent
-                usedColor: IslandStyle.textColor
-                activeColor: IslandStyle.accent
-                emptyOpacity: IslandStyle.inactiveOpacity
-                capsuleWidth: 30
-            }
-            MouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.RightButton
-                onPressed: Island.toggle("overview", root.screenName)
-            }
+            screenName: root.screenName
         }
 
         Sep {}
