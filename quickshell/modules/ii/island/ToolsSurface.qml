@@ -57,7 +57,10 @@ FocusScope {
         property string label
         property bool danger: false
         signal trig
-        implicitWidth: 74
+        // Grow with the label rather than assuming it fits 74px — the same fixed
+        // width that clipped "Shut down" in the power menu once the UI font
+        // changed to a wider one.
+        implicitWidth: Math.max(74, toolLabel.implicitWidth + 14)
         implicitHeight: 60
         radius: 12
         color: tbHover.hovered ? (danger ? Qt.rgba(0.9, 0.3, 0.3, 0.22) : Qt.rgba(0.54, 0.70, 0.97, 0.18))
@@ -76,6 +79,7 @@ FocusScope {
                 color: tb.danger ? "#FF5555" : IslandStyle.textColor
             }
             StyledText {
+                id: toolLabel
                 Layout.alignment: Qt.AlignHCenter
                 text: tb.label
                 font.pixelSize: Appearance.font.pixelSize.smaller

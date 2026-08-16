@@ -139,8 +139,13 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     readonly property bool sel: root.current === lbl.modelData.key
+                    // Anchored to BOTH edges: left-only let the label run past the
+                    // column and out of the panel entirely once the UI font changed
+                    // to a wider (monospace) one. Eliding keeps that impossible
+                    // whatever the font.
                     RowLayout {
                         anchors.left: parent.left
+                        anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 8
                         MaterialSymbol {
@@ -150,6 +155,8 @@ Rectangle {
                             color: lbl.sel ? IslandStyle.accent : IslandStyle.subtextColor
                         }
                         StyledText {
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
                             text: lbl.modelData.label
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: lbl.sel ? Font.DemiBold : Font.Normal

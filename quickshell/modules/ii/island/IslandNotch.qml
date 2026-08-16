@@ -300,7 +300,13 @@ Scope {
                     return 0;
                 }
             }
-            property real targetWidth: islandState === "open" ? (root.surfaceSizes[Island.openSurface]?.w ?? root.maxWidth)
+            // Open surfaces use their table size, but grow to their own implicitWidth
+            // if the content needs more — a fixed table can't know how wide labels
+            // render under a different font. Surfaces that declare no implicit size
+            // (0) keep the table value unchanged.
+            property real targetWidth: islandState === "open"
+                ? Math.min(root.maxWidth, Math.max(root.surfaceSizes[Island.openSurface]?.w ?? root.maxWidth,
+                                                   surfaceLoader.item?.implicitWidth ?? 0))
                 : islandState === "hover" ? statusRow.implicitWidth
                 : islandState === "expanded" ? (displaySource === "agent" ? (root.mediaActive ? 264 : 224) : Math.min(root.expandedMaxWidth, contentWidth + 36))
                 : idleRow.implicitWidth + 30

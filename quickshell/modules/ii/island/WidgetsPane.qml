@@ -366,7 +366,9 @@ Item {
 
         // === Right column: vertical power-profile slider (Saver↔Normal↔Performance) ===
         WidgetModeSlider {
-            Layout.preferredWidth: 170
+            // 170 was tuned for a proportional font; "Performance" in monospace
+            // needs more before it starts eliding.
+            Layout.preferredWidth: 210
             Layout.fillHeight: true
         }
     }

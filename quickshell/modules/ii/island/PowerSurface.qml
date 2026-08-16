@@ -18,7 +18,10 @@ FocusScope {
     readonly property var actions: [
         { "icon": "lock", "label": "Lock", "destructive": false, "night": false, "cmd": ["loginctl", "lock-session"] },
         { "icon": "nightlight", "label": "Night", "destructive": false, "night": true, "cmd": [] },
-        { "icon": "logout", "label": "Log out", "destructive": true, "night": false, "cmd": ["hyprctl", "dispatch", "exit"] },
+        // niri port: was `hyprctl dispatch exit`. Quitting the compositor ends the
+        // session; -s skips niri's "press Enter to confirm" prompt, since this menu
+        // is already the confirmation step.
+        { "icon": "logout", "label": "Log out", "destructive": true, "night": false, "cmd": ["niri", "msg", "action", "quit", "-s"] },
         { "icon": "restart_alt", "label": "Reboot", "destructive": true, "night": false, "cmd": ["systemctl", "reboot"] },
         { "icon": "power_settings_new", "label": "Shut down", "destructive": true, "night": false, "cmd": ["systemctl", "poweroff"] }
     ]
@@ -41,7 +44,14 @@ FocusScope {
     Keys.onEnterPressed: surf.activate(surf.sel)
     Keys.onEscapePressed: Island.close()
 
+    // Size to the content so the notch can widen to fit, rather than clipping
+    // labels. Matters with a monospace UI font, where "Shut down" is far wider
+    // than the 52px the tiles used to assume.
+    implicitWidth: actionRow.implicitWidth + 24
+    implicitHeight: actionRow.implicitHeight + 20
+
     RowLayout {
+        id: actionRow
         anchors.centerIn: parent
         spacing: 10
         Repeater {
@@ -51,7 +61,7 @@ FocusScope {
                 required property int index
                 required property var modelData
                 readonly property bool active: surf.sel === btn.index
-                implicitWidth: 52
+                implicitWidth: Math.max(52, tileLabel.implicitWidth + 14)
                 implicitHeight: 62
                 radius: 12
                 color: active ? (modelData.destructive ? Qt.rgba(0.9, 0.3, 0.3, 0.22) : Qt.rgba(0.54, 0.70, 0.97, 0.20))
@@ -71,6 +81,7 @@ FocusScope {
                         color: btn.modelData.destructive && btn.active ? "#FF5555" : IslandStyle.textColor
                     }
                     StyledText {
+                        id: tileLabel
                         Layout.alignment: Qt.AlignHCenter
                         text: btn.modelData.label
                         font.pixelSize: Appearance.font.pixelSize.smaller
