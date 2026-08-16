@@ -156,6 +156,12 @@ is actually on screen.
   transparent layer-shell catcher with careful stacking.
 - **Special workspaces** and **window pinning** have no niri equivalent; those
   dispatches log and no-op.
+- **The shell's own lock screen is unported.** `modules/ii/lock/Lock.qml` still
+  shells out to `hyprctl dispatch` to shuffle windows on lock/unlock, and
+  `LockSurface.qml` reads the layout from the inert `HyprlandXkb`. The core
+  `WlSessionLock` (ext-session-lock-v1) would work on niri, but nothing is bound
+  to it — locking is handled by swayidle + swaylock instead. Wiring a key to an
+  untested locker risks a lockout, so it stays unbound until ported.
 - **`HyprlandXkb` / `HyprlandKeybinds` / `HyprlandConfig`** parse Hyprland's
   config and are inert. niri exposes `niri msg keyboard-layouts` if the keyboard
   layout indicator is wanted later.

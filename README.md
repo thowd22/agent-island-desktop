@@ -119,6 +119,31 @@ Mod+Space { spawn "qs" "-c" "openagentisland" "ipc" "call" "shortcuts" "trigger"
 
 `qs -c openagentisland ipc call shortcuts list` prints all 42 names.
 
+### Locking
+
+niri has no idle management of its own, so lock and idle are handled by
+`swayidle` + `swaylock`:
+
+```kdl
+spawn-at-startup "swayidle" "-w" \
+  "lock" "swaylock -f" "before-sleep" "swaylock -f" \
+  "timeout" "600" "swaylock -f" \
+  "timeout" "900" "niri msg action power-off-monitors" \
+  "resume" "niri msg action power-on-monitors"
+```
+
+The `lock` handler matters: the island's power-menu **Lock** button runs
+`loginctl lock-session`, which does nothing unless something is listening for
+logind's Lock signal.
+
+Note Fedora ships **vanilla swaylock**, so `screenshots`, `effect-blur` and
+`effect-vignette` (swaylock-*effects* options) will stop it starting — which
+fails open, leaving the screen unlocked.
+
+The shell also contains its own themed lock screen (`modules/ii/lock/`), but it
+is **not wired up**: `Lock.qml` still shells out to `hyprctl dispatch`, so it is
+unported. See [`NIRI-PORT.md`](NIRI-PORT.md#known-gaps).
+
 ---
 
 ## What's different from upstream
