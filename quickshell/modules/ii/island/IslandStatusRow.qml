@@ -240,6 +240,21 @@ Item {
                 }
                 Sep { visible: mediaGroup.visible }
 
+                // night light (gammastep — see scripts/colors/nightlight.sh).
+                // Lit in the accent colour while it's on, so the icon doubles as
+                // the indicator rather than needing a separate one.
+                IconBtn {
+                    // One glyph, state shown by colour: the power menu already
+                    // renders "nightlight", so there's no risk of a missing-symbol
+                    // box, and an on/off pair of glyphs would read as two features.
+                    text: "nightlight"
+                    iconSize: 18
+                    fill: Hyprsunset.temperatureActive ? 1 : 0
+                    baseColor: Hyprsunset.temperatureActive ? IslandStyle.accent : IslandStyle.textColor
+                    opacity: Hyprsunset.temperatureActive ? 1 : 0.75
+                    onActivated: Hyprsunset.toggleTemperature()
+                }
+
                 // performance profile toggle
                 IconBtn {
                     text: !PowerProfiles.hasPerformanceProfile ? "airwave"
